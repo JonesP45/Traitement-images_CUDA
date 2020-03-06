@@ -1,0 +1,39 @@
+/home/jean-pacome/.local/share/JetBrains/Toolbox/apps/CLion/ch-1/201.5616.31/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD
+-- The C compiler identification is unknown
+-- The CXX compiler identification is unknown
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- broken
+CMake Error at /home/jean-pacome/.local/share/JetBrains/Toolbox/apps/CLion/ch-1/201.5616.31/bin/cmake/linux/share/cmake-3.16/Modules/CMakeTestCCompiler.cmake:60 (message):
+  The C compiler
+
+    "/usr/bin/cc"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: /run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeTmp
+    
+    Run Build Command(s):/usr/bin/make cmTC_a5b11/fast && /usr/bin/make -f CMakeFiles/cmTC_a5b11.dir/build.make CMakeFiles/cmTC_a5b11.dir/build
+    make[1] : on entre dans le répertoire « /run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeTmp »
+    Building C object CMakeFiles/cmTC_a5b11.dir/testCCompiler.c.o
+    /usr/bin/cc    -o CMakeFiles/cmTC_a5b11.dir/testCCompiler.c.o   -c /run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeTmp/testCCompiler.c
+    /tmp/ccUhCHYs.s: Messages de l'assembleur:
+    /tmp/ccUhCHYs.s: Erreur fatale: impossible d'écrire 23 octets dans la section .text de CMakeFiles/cmTC_a5b11.dir/testCCompiler.c.o: « Opération non supportée »
+    /tmp/ccUhCHYs.s: Erreur fatale: ne peut fermer CMakeFiles/cmTC_a5b11.dir/testCCompiler.c.o: Opération non supportée
+    make[1]: *** [CMakeFiles/cmTC_a5b11.dir/build.make:66: CMakeFiles/cmTC_a5b11.dir/testCCompiler.c.o] Error 1
+    make[1] : on quitte le répertoire « /run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeTmp »
+    make: *** [Makefile:121: cmTC_a5b11/fast] Error 2
+    
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/run/user/1000/gvfs/sftp:host=192.168.80.64,user=o2163233/home/PG2020/o2163233/TD/cmake-build-debug/CMakeFiles/CMakeError.log".

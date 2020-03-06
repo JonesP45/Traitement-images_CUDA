@@ -1,0 +1,364 @@
+# Ce fichier viminfo a été généré par Vim 8.1.
+# Vous pouvez l'éditer, mais soyez prudent.
+
+# Viminfo version
+|1,4
+
+# 'encoding' dans lequel ce fichier a été écrit
+*encoding=utf-8
+
+
+# hlsearch on (H) or off (h):
+~h
+# Historique ligne de commande (chronologie décroissante) :
+:x
+|2,0,1581517483,,"x"
+:q
+|2,0,1581517140,,"q"
+:w
+|2,0,1581516844,,"w"
+:yy
+|2,0,1581516065,,"yy"
+:q!
+|2,0,1581511580,,"q!"
+:qs
+|2,0,1580313753,,"qs"
+
+# Historique chaîne de recherche (chronologie décroissante) :
+
+# Historique expression (chronologie décroissante) :
+
+# Historique ligne de saisie (chronologie décroissante) :
+
+# Historique Ligne de débogage (chronologie décroissante) :
+
+# Registres :
+""0	LINE	0
+	
+	__global__ void grayscale( unsigned char * rgb, unsigned char * g, std::size_t cols, std::size_t rows )
+|3,1,0,1,2,0,1581517294,"","__global__ void grayscale( unsigned char * rgb, unsigned char * g, std::size_t cols, std::size_t rows )"
+
+# Marques dans le fichier :
+'0  84  1  ~/td3/grayscale.cu
+|4,48,84,1,1581517483,"~/td3/grayscale.cu"
+'1  83  1  ~/td3/grayscale.cu
+|4,49,83,1,1581517419,"~/td3/grayscale.cu"
+'2  83  1  ~/td3/grayscale.cu
+|4,50,83,1,1581517419,"~/td3/grayscale.cu"
+'3  9  31  ~/td3/grayscale.cu
+|4,51,9,31,1581517326,"~/td3/grayscale.cu"
+'4  9  31  ~/td3/grayscale.cu
+|4,52,9,31,1581517326,"~/td3/grayscale.cu"
+'5  9  31  ~/td3/grayscale.cu
+|4,53,9,31,1581517326,"~/td3/grayscale.cu"
+'6  9  31  ~/td3/grayscale.cu
+|4,54,9,31,1581517326,"~/td3/grayscale.cu"
+'7  4  20  ~/td3/Makefile
+|4,55,4,20,1581517140,"~/td3/Makefile"
+'8  84  43  ~/grayscale.cu
+|4,56,84,43,1581516982,"~/grayscale.cu"
+'9  1  0  ~/grayscale.cu
+|4,57,1,0,1581515088,"~/grayscale.cu"
+
+# Liste de sauts (le plus récent en premier) :
+-'  84  1  ~/td3/grayscale.cu
+|4,39,84,1,1581517483,"~/td3/grayscale.cu"
+-'  83  1  ~/td3/grayscale.cu
+|4,39,83,1,1581517469,"~/td3/grayscale.cu"
+-'  83  1  ~/td3/grayscale.cu
+|4,39,83,1,1581517419,"~/td3/grayscale.cu"
+-'  9  31  ~/td3/grayscale.cu
+|4,39,9,31,1581517340,"~/td3/grayscale.cu"
+-'  9  31  ~/td3/grayscale.cu
+|4,39,9,31,1581517340,"~/td3/grayscale.cu"
+-'  9  31  ~/td3/grayscale.cu
+|4,39,9,31,1581517326,"~/td3/grayscale.cu"
+-'  1  0  ~/td3/grayscale.cu
+|4,39,1,0,1581517157,"~/td3/grayscale.cu"
+-'  1  0  ~/td3/grayscale.cu
+|4,39,1,0,1581517157,"~/td3/grayscale.cu"
+-'  1  0  ~/td3/grayscale.cu
+|4,39,1,0,1581517157,"~/td3/grayscale.cu"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  4  20  ~/td3/Makefile
+|4,39,4,20,1581517140,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  1  0  ~/td3/Makefile
+|4,39,1,0,1581517125,"~/td3/Makefile"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  84  43  ~/grayscale.cu
+|4,39,84,43,1581516982,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515151,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  0  ~/grayscale.cu
+|4,39,1,0,1581515088,"~/grayscale.cu"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+-'  1  7  ~/examples/grayscale/Makefile
+|4,39,1,7,1580916470,"~/examples/grayscale/Makefile"
+
+# Historique des marques dans les fichiers (les plus récentes en premier) :
+
+> ~/td3/grayscale.cu
+	*	1581517482	0
+	"	84	1
+	^	84	2
+	.	84	2
+	+	8	0
+	+	11	0
+	+	9	31
+	+	84	4
+	+	83	4
+	+	84	2
+
+> ~/td3/Makefile
+	*	1581517135	0
+	"	4	20
+
+> ~/grayscale.cu
+	*	1581516975	0
+	"	84	43
+	^	84	44
+	.	84	17
+	+	9	56
+	+	18	0
+	+	14	42
+	+	9	31
+	+	14	42
+	+	9	102
+	+	18	0
+	+	9	110
+	+	22	2
+	+	11	0
+	+	12	0
+	+	11	7
+	+	12	7
+	+	11	22
+	+	12	23
+	+	14	41
+	+	18	0
+	+	14	42
+	+	13	7
+	+	14	39
+	+	13	39
+	+	18	0
+	+	14	41
+	+	16	43
+	+	17	5
+	+	16	42
+	+	83	50
+	+	84	0
+	+	83	4
+	+	84	17
+
+> ~/examples/grayscale/Makefile
+	*	1580916438	0
+	"	1	7
+	^	1	8
+	.	2	0
+	+	5	0
+	+	4	22
+	+	1	7
+	+	2	0
+
+> ~/examples/grayscale/grayscale.cu
+	*	1580916280	0
+	"	2	13
+
+> ~/matrice.cu
+	*	1580915785	0
+	"	1	0
+
+> ~/td1.cu
+	*	1580313895	0
+	"	33	37
+	^	33	38
+	.	33	36
+	+	8	36
+	+	17	23
+	+	24	8
+	+	11	0
+	+	10	1
+	+	11	13
+	+	12	0
+	+	25	0
+	+	24	0
+	+	26	0
+	+	25	37
+	+	26	11
+	+	19	5
+	+	23	2
+	+	21	1
+	+	38	0
+	+	34	0
+	+	33	47
+	+	37	0
+	+	36	48
+	+	9	24
+	+	26	25
+	+	33	36
