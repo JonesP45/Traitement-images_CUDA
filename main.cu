@@ -6,6 +6,17 @@
 
 using namespace std;
 
+__global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+  auto i = blockIdx.x * blockDim.x + threadIdx.x;
+  auto j = blockIdx.y * blockDim.y + threadIdx.y;
+
+  // if( i > 0 && i < (blockDim.x - 1) && j > 0 && j < (blockDim.y - 1) )
+  if (j*cols+i < 3*cols*rows)
+  {
+    mat_out[j * cols + i] = mat_in[j * cols + i];
+  }
+}
+
 __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
   auto j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -14,7 +25,6 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
   if (j*cols+i < 3*cols*rows)
   {
     mat_out[j * cols + i] = mat_in[j * cols + i];
-
   }
 }
 
