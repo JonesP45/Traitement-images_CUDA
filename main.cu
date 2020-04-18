@@ -10,21 +10,35 @@ __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
   auto j = blockIdx.y * blockDim.y + threadIdx.y;
 
-  // if( i > 0 && i < (blockDim.x - 1) && j > 0 && j < (blockDim.y - 1) )
-  if (j*cols+i < 3*cols*rows)
+  //if (i*cols+j < 3*cols*rows) equivalent
+  if (j<rows*3 && i<cols)
   {
-    mat_out[j * cols + i] = mat_in[j * cols + i];
+    mat_out[j * cols*3 + i] = mat_in[j * cols*3 + i];
+
   }
 }
 
 __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
-  auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  auto j = blockIdx.y * blockDim.y + threadIdx.y;
+  auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+  auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-  // if( i > 0 && i < (blockDim.x - 1) && j > 0 && j < (blockDim.y - 1) )
-  if (j*cols+i < 3*cols*rows)
+  //if (j<rows*3 && i<cols && j>3 )
+  if (j>2 && j<rows*3 && i<cols)
   {
-    mat_out[j * cols + i] = mat_in[j * cols + i];
+    //p1 à p9 correspondent aux 9 pixels à récupérer
+    unsigned char p1 = mat_in[(j-3) * cols + i - 3];
+    unsigned char p2 = mat_in[(j-3) * cols + i];
+    unsigned char p3 = mat_in[(j-3) * cols + i + 3];
+    unsigned char p4 = mat_in[j * cols + i - 3];
+    unsigned char p5 = mat_in[j * cols + i];
+    unsigned char p6 = mat_in[j * cols + i + 3];
+    unsigned char p7 = mat_in[(j+3) * cols + i - 3];
+    unsigned char p8 = mat_in[(j+3) * cols + i];
+    unsigned char p9 = mat_in[(j+3) * cols + i + 3];
+    // unsigned char p1, p2, p3, p4, p5, p6, p7, p8, p9;
+
+    mat_out[j * cols + i] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
+
   }
 }
 
@@ -36,20 +50,18 @@ int main()
   unsigned char * rgb = m_in.data;
   int rows = m_in.rows;
   int cols = m_in.cols;
-  cv::Mat planes[3];
-  cv::split(m_in, planes);
 
-  unsigned char * b = planes[0].data;
-  unsigned char * v = planes[1].data;
-  unsigned char * r = planes[2].data;
-
+  // cv::Mat planes[3];
+  // cv::split(m_in, planes);
+  // unsigned char * b = planes[0].data;
+  // unsigned char * v = planes[1].data;
+  // unsigned char * r = planes[2].data;
   // for (int i=0; i<rows; i++)
   //   for (int j=0; j<cols; j++)
   //     cout << r[j * cols + i];
 
 
-
-  std::vector<unsigned char> g(rows * cols * 3); //Pour recreer l'image
+  vector<unsigned char> g(rows * cols * 3); //Pour recreer l'image
   cv::Mat m_out(rows, cols, CV_8UC3, g.data());
   unsigned char * mat_in;
   unsigned char * mat_out;
@@ -63,7 +75,7 @@ int main()
   // dim3 t( 32, 32 );
   // dim3 b( ( cols - 1) / (t.x-2) + 1 , ( rows - 1 ) / (t.y-2) + 1 );
 
-  dim3 block( 32, 32);
+  dim3 block( 32, 32); //nb de thread, max 1024
   dim3 grid(((cols-1) / block.x + 1), 3*((rows-1) / block.y + 1));
 
   //Debut de chrono
@@ -74,15 +86,15 @@ int main()
   cudaEventRecord(start);
 
   //Appel kernel
-  blur<<< grid, block>>>(mat_in, mat_out, cols, rows );
+  blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
-  std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
+  cout << cudaGetErrorString(cudaGetLastError()) << endl;
   float elapsedTime;
   cudaEventElapsedTime( &elapsedTime, start, stop);
-  std::cout << elapsedTime << std::endl;
+  cout << elapsedTime << endl;
   cudaEventDestroy(start);
   cudaEventDestroy(stop);
 
@@ -93,6 +105,20 @@ int main()
 
   cudaFree(mat_in);
   cudaFree(mat_out);
+
+
+//
+//   int cols = 5;
+//   int rows = 10;
+//   unsigned char * mat;
+//   cudaMalloc(mat, 3 * rows * cols );
+//   for (int i=0; i<cols*rows*3; i++)
+//   {
+//       mat[i] = i+1;
+//   }
+//   cv::Mat m = (rows, cols, CV_8UC3, mat);
+// cv::imwrite( "test.jpg", m );
+
 
   return 0;
 }
