@@ -35,10 +35,20 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
     unsigned char p7 = mat_in[(j+3) * cols + i - 3];
     unsigned char p8 = mat_in[(j+3) * cols + i];
     unsigned char p9 = mat_in[(j+3) * cols + i + 3];
-    // unsigned char p1, p2, p3, p4, p5, p6, p7, p8, p9;
 
     mat_out[j * cols + i] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
+  }
+  //pour la premiere ligne
+  else if (j<=2 && j<rows*3 && i<cols)
+  {
+    unsigned char p4 = mat_in[j * cols + i - 3];
+    unsigned char p5 = mat_in[j * cols + i];
+    unsigned char p6 = mat_in[j * cols + i + 3];
+    unsigned char p7 = mat_in[(j+3) * cols + i - 3];
+    unsigned char p8 = mat_in[(j+3) * cols + i];
+    unsigned char p9 = mat_in[(j+3) * cols + i + 3];
 
+    mat_out[j * cols + i] = (p4+p5+p6+p7+p8+p9)/6;
   }
 }
 
