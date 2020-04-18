@@ -64,7 +64,7 @@ int main()
     std::cout << cudaGetErrorString( err );
   }
 
-cudaMemcpy( g.data(), g_d, rows * cols, cudaMemcpyDeviceToHost );
+  cudaMemcpy( g.data(), g_d, rows * cols, cudaMemcpyDeviceToHost );
   cv::imwrite( "out.jpg", m_out );
   cudaFree( rgb_d);
   cudaFree( g_d);
