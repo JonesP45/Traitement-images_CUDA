@@ -184,6 +184,7 @@ void blur(unsigned char * rgb_in, unsigned char * rgb_out, int rows, int cols) {
                 unsigned char b = rgb_in[3 * (row * cols + col) + i];
                 unsigned char bd = rgb_in[3 * (row * cols + col + 3) + i];
                 rgb_out[3 * (row * cols + col) + i] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+                // rgb_out[3 * (row * cols + col) + i] = 0.0625 * (hg + hd + bg + bd) + 0.125 * (h + b + g + d) + 0.25 * c;
                 // }
             }
         }
@@ -231,7 +232,7 @@ int main()
 
     //Recup donnees kernel
     cudaMemcpy(g.data(), rgb_out, taille_rgb, cudaMemcpyDeviceToHost );
-    cv::imwrite( "out.jpg", m_out );
+    cv::imwrite( "out_blur.jpg", m_out );
     cudaFree(rgb_in);
     cudaFree(rgb_out);
     return 0;
