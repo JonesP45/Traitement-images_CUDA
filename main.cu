@@ -66,7 +66,27 @@ __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::si
     unsigned char p6 = mat_in[j * cols + i + 3];
     unsigned char p8 = mat_in[(j+3) * cols + i];
 
-    mat_out[j * cols + i] = (-3*(p2+p4+p6+p8)+21*p5)/9;
+    // int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+    mat_out[j * cols + i] = ((-3*(p2+p4+p6+p8)+21*p5)/9)%255;
+  }
+}
+
+__global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+  auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+  auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+  //if (j<rows*3 && i<cols && j>3 )
+  if (j>2 && j<rows*3 && i<cols)
+  {
+    //p1 à p9 correspondent aux 9 pixels à récupérer
+    unsigned char p2 = mat_in[(j-3) * cols + i];
+    unsigned char p4 = mat_in[j * cols + i - 3];
+    unsigned char p5 = mat_in[j * cols + i];
+    unsigned char p6 = mat_in[j * cols + i + 3];
+    unsigned char p8 = mat_in[(j+3) * cols + i];
+
+    // int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+    mat_out[j * cols + i] = ((9*(p2+p4+p6+p8)-36*p5)/5)%255;
   }
 }
 
@@ -117,6 +137,7 @@ int main()
   //Appel kernel
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
