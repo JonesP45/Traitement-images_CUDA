@@ -66,8 +66,10 @@ __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::si
     unsigned char p6 = mat_in[j * cols + i + 3];
     unsigned char p8 = mat_in[(j+3) * cols + i];
 
-    // int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
-    mat_out[j * cols + i] = (-3*(p2+p4+p6+p8)+21*p5)/9;
+    int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+    if (tmp > 255) tmp = 255;
+    if (tmp < 0) tmp = 0;
+    mat_out[j * cols + i] = tmp;
   }
 }
 
@@ -85,8 +87,10 @@ __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std
     unsigned char p6 = mat_in[j * cols + i + 3];
     unsigned char p8 = mat_in[(j+3) * cols + i];
 
-    // int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
-    mat_out[j * cols + i] = (9*(p2+p4+p6+p8)-36*p5)/9;
+    int tmp =  (9*(p2+p4+p6+p8)-36*p5)/9;
+    if (tmp > 255) tmp = 255;
+    if (tmp < 0) tmp = 0;
+    mat_out[j * cols + i] = tmp;
   }
 }
 
