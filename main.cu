@@ -59,8 +59,8 @@ int main()
     cudaMemcpy(mat_in, rgb, 3 * rows * cols, cudaMemcpyHostToDevice);
     
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
-    
+    dim3 grid(((cols - 1) / block.x + 1), 3 * ((rows - 1) / block.y + 1));
+
     //Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
