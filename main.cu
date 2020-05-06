@@ -22,20 +22,23 @@ __global__ void blur(unsigned char* mat_in, unsigned char* mat_out, std::size_t 
     auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
 
-    if (j >= 3 && j < (rows - 1) * 3 && i >= 1 && i < cols - 1)
+    if (j >= 3 && j < (rows - 1) * 3)
     {
-        //p1 à p9 correspondent aux 9 pixels à récupérer
-        unsigned char p1 = mat_in[(j - 3) * cols + i - 3];
-        unsigned char p2 = mat_in[(j - 3) * cols + i];
-        unsigned char p3 = mat_in[(j - 3) * cols + i + 3];
-        unsigned char p4 = mat_in[j * cols + i - 3];
-        unsigned char p5 = mat_in[j * cols + i];
-        unsigned char p6 = mat_in[j * cols + i + 3];
-        unsigned char p7 = mat_in[(j + 3) * cols + i - 3];
-        unsigned char p8 = mat_in[(j + 3) * cols + i];
-        unsigned char p9 = mat_in[(j + 3) * cols + i + 3];
-
-        mat_out[j * cols + i] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
+        if (j * cols + i - 3 > (j - 1) * cols + cols - 1 && j * cols + i + 3 < (j + 1) * cols)
+        {
+            //p1 à p9 correspondent aux 9 pixels à récupérer
+            unsigned char p1 = mat_in[(j - 3) * cols + i - 3];
+            unsigned char p2 = mat_in[(j - 3) * cols + i];
+            unsigned char p3 = mat_in[(j - 3) * cols + i + 3];
+            unsigned char p4 = mat_in[j * cols + i - 3];
+            unsigned char p5 = mat_in[j * cols + i];
+            unsigned char p6 = mat_in[j * cols + i + 3];
+            unsigned char p7 = mat_in[(j + 3) * cols + i - 3];
+            unsigned char p8 = mat_in[(j + 3) * cols + i];
+            unsigned char p9 = mat_in[(j + 3) * cols + i + 3];
+        	
+            mat_out[j * cols + i] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
+        }
     }
 }
 
