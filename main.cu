@@ -10,8 +10,8 @@ __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
   auto j = blockIdx.y * blockDim.y + threadIdx.y;
 
-  //if (i*cols+j < 3*cols*rows) equivalent
-  if (j<rows*3 && i<cols)
+  //if (i*cols+j < 3*cols*rows) // equivalent
+  if (j>2 && j<rows*3-3 && i<cols-1 && i>1)
   {
     mat_out[j * cols*3 + i] = mat_in[j * cols*3 + i];
 
@@ -23,7 +23,7 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3 && i<cols)
+  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p1 = mat_in[(j-3) * cols + i - 3];
@@ -38,18 +38,6 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
 
     mat_out[j * cols + i] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
   }
-  //pour la premiere ligne
-  else if (j<=2 && j<rows*3 && i<cols)
-  {
-    unsigned char p4 = mat_in[j * cols + i - 3];
-    unsigned char p5 = mat_in[j * cols + i];
-    unsigned char p6 = mat_in[j * cols + i + 3];
-    unsigned char p7 = mat_in[(j+3) * cols + i - 3];
-    unsigned char p8 = mat_in[(j+3) * cols + i];
-    unsigned char p9 = mat_in[(j+3) * cols + i + 3];
-
-    mat_out[j * cols + i] = (p4+p5+p6+p7+p8+p9)/6;
-  }
 }
 
 __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
@@ -57,7 +45,7 @@ __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::si
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3 && i<cols)
+  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p2 = mat_in[(j-3) * cols + i];
@@ -98,7 +86,7 @@ __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std
 int main()
 {
   //Declarations
-  cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
+  cv::Mat m_in = cv::imread("tulipe.jpg", cv::IMREAD_UNCHANGED);
   unsigned char * rgb = m_in.data;
   int rows = m_in.rows;
   int cols = m_in.cols;
@@ -139,9 +127,10 @@ int main()
   cudaEventRecord(start);
 
   //Appel kernel
+  // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
