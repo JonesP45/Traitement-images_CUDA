@@ -1,47 +1,28 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include <math.h>
-#include <typeinfo>
 
 using namespace std;
-
-__global__ void copy(unsigned char* mat_in, unsigned char* mat_out, std::size_t cols, std::size_t rows) {
-    auto i = blockIdx.x * blockDim.x + threadIdx.x;
-    auto j = blockIdx.y * blockDim.y + threadIdx.y;
-
-    //if (i*cols+j < 3*cols*rows) equivalent
-    if (j < rows * 3 && i < cols)
-    {
-        mat_out[j * cols * 3 + i] = mat_in[j * cols * 3 + i];
-
-    }
-}
 
 __global__ void blur(unsigned char* mat_in, unsigned char* mat_out, std::size_t cols, std::size_t rows) {
     auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-
-    if (j >= 3 && j < (rows - 1) * 3)
+    if (j >= 3 && j < (rows - 1) * 3 && i >= 1 && i < cols - 1)
     {
-        if (j * cols + i - 3 > (j - 1) * cols + cols - 1 && j * cols + i + 3 < (j + 1) * cols)
-        {
-            //p1 à p9 correspondent aux 9 pixels à récupérer
-            unsigned char p1 = mat_in[(j - 3) * cols + i - 3];
-            unsigned char p2 = mat_in[(j - 3) * cols + i];
-            unsigned char p3 = mat_in[(j - 3) * cols + i + 3];
-            unsigned char p4 = mat_in[j * cols + i - 3];
-            unsigned char p5 = mat_in[j * cols + i];
-            unsigned char p6 = mat_in[j * cols + i + 3];
-            unsigned char p7 = mat_in[(j + 3) * cols + i - 3];
-            unsigned char p8 = mat_in[(j + 3) * cols + i];
-            unsigned char p9 = mat_in[(j + 3) * cols + i + 3];
-        	
-            mat_out[j * cols + i] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
-        }
+        //p1 à p9 correspondent aux 9 pixels à récupérer
+        unsigned char p1 = mat_in[(j - 3) * cols + i - 3];
+        unsigned char p2 = mat_in[(j - 3) * cols + i];
+        unsigned char p3 = mat_in[(j - 3) * cols + i + 3];
+        unsigned char p4 = mat_in[j * cols + i - 3];
+        unsigned char p5 = mat_in[j * cols + i];
+        unsigned char p6 = mat_in[j * cols + i + 3];
+        unsigned char p7 = mat_in[(j + 3) * cols + i - 3];
+        unsigned char p8 = mat_in[(j + 3) * cols + i];
+        unsigned char p9 = mat_in[(j + 3) * cols + i + 3];
+
+        mat_out[j * cols + i] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
     }
 }
-
 
 int main()
 {
@@ -60,9 +41,9 @@ int main()
     cudaMalloc(&mat_in, 3 * rows * cols);
     cudaMalloc(&mat_out, 3 * rows * cols);
     cudaMemcpy(mat_in, rgb, 3 * rows * cols, cudaMemcpyHostToDevice);
-    
+
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
+    dim3 grid(((cols - 1) / block.x + 1), 3 * ((rows - 1) / block.y + 1));
 
     //Debut de chrono
     cudaEvent_t start;
@@ -72,9 +53,7 @@ int main()
     cudaEventRecord(start);
 
     //Appel kernel
-    blur<<< grid, block >>>(mat_in, mat_out, cols, rows);
-    // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-    // edge_detect << < grid, block >> > (mat_in, mat_out, cols, rows);
+    blur <<< grid, block >>> (mat_in, mat_out, cols, rows);
 
     //Fin de chrono
     cudaEventRecord(stop);
@@ -93,5 +72,6 @@ int main()
 
     cudaFree(mat_in);
     cudaFree(mat_out);
+
     return 0;
 }
