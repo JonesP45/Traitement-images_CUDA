@@ -23,8 +23,13 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
+  auto li = threadIdx.x;
+  auto lj = threadIdx.y;
+
+  extern __shared__ unsigned char sh[];
+
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
+  if (j>2 && j<rows*3-3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p1 = mat_in[(j-3) * cols + i - 3];
@@ -37,13 +42,24 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
     unsigned char p8 = mat_in[(j+3) * cols + i];
     unsigned char p9 = mat_in[(j+3) * cols + i + 3];
 
-    mat_out[j * cols + i] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
+    sh[lj * blockDim.x + li] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
   }
+  else
+    sh[lj * blockDim.x + li] = 0;
+
+  __syncthreads();
+
+  mat_out[j * cols + i] =  sh[lj * blockDim.x + li];
 }
 
 __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+  auto li = threadIdx.x;
+  auto lj = threadIdx.y;
+
+  extern __shared__ unsigned char sh[];
 
   //if (j<rows*3 && i<cols && j>3 )
   if (j>2 && j<rows*3-3)
@@ -58,16 +74,27 @@ __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::si
     int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
     if (tmp > 255) tmp = 255;
     if (tmp < 0) tmp = 0;
-    mat_out[j * cols + i] = tmp;
+    sh[lj * blockDim.x + li] = tmp;
   }
+  else
+    sh[lj * blockDim.x + li] = 0;
+
+  __syncthreads();
+
+  mat_out[j * cols + i] = sh[lj * blockDim.x + li];
 }
 
 __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
+  auto li = threadIdx.x;
+  auto lj = threadIdx.y;
+
+  extern __shared__ unsigned char sh[];
+
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3-3)
+  if (j>2 && j<rows*3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p2 = mat_in[(j-3) * cols + i];
@@ -79,30 +106,95 @@ __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std
     int tmp =  (9*(p2+p4+p6+p8)-36*p5)/9;
     if (tmp > 255) tmp = 255;
     if (tmp < 0) tmp = 0;
-    mat_out[j * cols + i] = tmp;
+    sh[lj * blockDim.x + li] = tmp;
   }
+  else
+    sh[lj * blockDim.x + li] = 0;
+
+  __syncthreads();
+
+  mat_out[j * cols + i] = sh[lj * blockDim.x + li];
 }
 
+__global__ void sharpen_and_edge_detect(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+  auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+  auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+  auto li = threadIdx.x;
+  auto lj = threadIdx.y;
+
+  extern __shared__ unsigned char sh[];
+
+  //if (j<rows*3 && i<cols && j>3 )
+  if (j>2 && j<rows*3-3)
+  {
+    //p1 à p9 correspondent aux 9 pixels à récupérer
+    unsigned char p2 = mat_in[(j-3) * cols + i];
+    unsigned char p4 = mat_in[j * cols + i - 3];
+    unsigned char p5 = mat_in[j * cols + i];
+    unsigned char p6 = mat_in[j * cols + i + 3];
+    unsigned char p8 = mat_in[(j+3) * cols + i];
+
+    int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+    if (tmp > 255) tmp = 255;
+    if (tmp < 0) tmp = 0;
+    sh[lj * blockDim.x + li] = tmp;
+  }
+  else
+    sh[lj * blockDim.x + li] = mat_in[j * cols + i];
+
+
+
+  __syncthreads();
+
+  // mat_out[j * cols + i]= sh[lj * blockDim.x + li];
+
+  if( li > 2 && li < (blockDim.x - 3) && lj > 2 && lj < (blockDim.y - 3) )
+  //if (j>2 && j<rows*3-3)
+  {
+    //p1 à p9 correspondent aux 9 pixels à récupérer
+    unsigned char p2 = sh[(lj-3) * blockDim.x + li];
+    unsigned char p4 = sh[lj * blockDim.x + li - 3];
+    unsigned char p5 = sh[lj * blockDim.x + li];
+    unsigned char p6 = sh[lj * blockDim.x + li + 3];
+    unsigned char p8 = sh[(lj+3) * blockDim.x + li];
+
+    int tmp = (9*(p2+p4+p6+p8)-36*p5)/9;
+    if (tmp > 255) tmp = 255;
+    if (tmp < 0) tmp = 0;
+    mat_out[j * cols + i] = tmp;
+  }
+  // else
+  //    mat_out[j * cols + i] = 0;
+}
 
 
 int main()
 {
   //Declarations
-  cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
+  cv::Mat m_in = cv::imread("tulipe.jpg", cv::IMREAD_UNCHANGED);
   unsigned char * rgb = m_in.data;
   int rows = m_in.rows;
   int cols = m_in.cols;
+
+  // cv::Mat planes[3];
+  // cv::split(m_in, planes);
+  // unsigned char * b = planes[0].data;
+  // unsigned char * v = planes[1].data;
+  // unsigned char * r = planes[2].data;
+  // for (int i=0; i<rows; i++)
+  //   for (int j=0; j<cols; j++)
+  //     cout << r[j * cols + i];
+
 
   vector<unsigned char> g(rows * cols * 3); //Pour recreer l'image
   cv::Mat m_out(rows, cols, CV_8UC3, g.data());
   unsigned char * mat_in;
   unsigned char * mat_out;
-  unsigned char * mat_tmp;
 
   //Init donnes kernel
   cudaMalloc( &mat_in, 3 * rows * cols );
   cudaMalloc( &mat_out, 3 * rows * cols );
-  cudaMalloc( &mat_tmp, 3 * rows * cols );
   cudaMemcpy( mat_in, rgb, 3 * rows * cols, cudaMemcpyHostToDevice );
 
 
@@ -111,7 +203,7 @@ int main()
   // dim3 b( ( cols - 1) / (t.x-2) + 1 , ( rows - 1 ) / (t.y-2) + 1 );
 
   dim3 block( 32, 32); //nb de thread, max 1024
-  dim3 grid((cols-1) / (block.x-2) + 1, 3*(rows-1) / (block.y-2) + 1);
+  dim3 grid((cols-1) / block.x + 1, 3*(rows-1) / block.y + 1);
 
   //Debut de chrono
   cudaEvent_t start;
@@ -120,15 +212,12 @@ int main()
   cudaEventCreate(&stop);
   cudaEventRecord(start);
 
-  //Appel simple kernel
+  //Appel kernel
   // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
-
-  //Double appel
-  // sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
-  // edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
+  // blur<<< grid, block, block.x*block.y>>>(mat_in, mat_out, cols, rows);
+  // sharpen<<< grid, block, block.x*block.y>>>(mat_in, mat_out, cols, rows);
+  // edge_detect<<< grid, block, block.x*block.y>>>(mat_in, mat_out, cols, rows);
+  sharpen_and_edge_detect<<< grid, block, block.x*block.y>>>(mat_in, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
@@ -142,8 +231,6 @@ int main()
 
   //Recup donnees kernel
   cudaMemcpy( g.data(), mat_out, 3*rows * cols, cudaMemcpyDeviceToHost );
-
-
 
   cv::imwrite( "out.jpg", m_out );
 
