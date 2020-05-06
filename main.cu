@@ -24,7 +24,7 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
+  if (j>2 && j<rows*3-3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p1 = mat_in[(j-3) * cols + i - 3];
@@ -88,7 +88,7 @@ __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std
 int main()
 {
   //Declarations
-  cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
+  cv::Mat m_in = cv::imread("tulipe.jpg", cv::IMREAD_UNCHANGED);
   unsigned char * rgb = m_in.data;
   int rows = m_in.rows;
   int cols = m_in.cols;
@@ -122,9 +122,9 @@ int main()
 
   //Appel simple kernel
   // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Double appel
   // sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);

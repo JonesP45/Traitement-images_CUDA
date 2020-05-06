@@ -6,8 +6,8 @@ __global__ void grayscale_sobel( unsigned char * in, unsigned char * out, std::s
   auto j = blockIdx.y * (blockDim.y-2) + threadIdx.y;
 
   auto li = threadIdx.x;
-  auto lj = threadIdx.y;  
-  
+  auto lj = threadIdx.y;
+
   extern __shared__ unsigned char sh[];
 
   if( i < w && j < h ) {
@@ -48,13 +48,11 @@ int main()
   cv::Mat m_out( rows, cols, CV_8UC1, g.data() );
   unsigned char * rgb_d;
   unsigned char * g_d;
-  unsigned char * out_d;
   cudaMalloc( &rgb_d, 3 * rows * cols );
   cudaMalloc( &g_d, rows * cols );
-  cudaMalloc( &out_d, rows * cols );
   cudaMemcpy( rgb_d, rgb, 3 * rows * cols, cudaMemcpyHostToDevice );
   dim3 t( 32, 32 );
-  dim3 b( ( cols - 1) / (t.x-2) + 1 , ( rows - 1 ) / (t.y-2) + 1 );
+  dim3 b( ( cols - 1) / (t.x) + 1 , ( rows - 1 ) / (t.y) + 1 );
   grayscale_sobel<<< b, t, t.x*t.y >>>( rgb_d, g_d, cols, rows );
 
   cudaDeviceSynchronize();
@@ -64,7 +62,7 @@ int main()
     std::cout << cudaGetErrorString( err );
   }
 
-cudaMemcpy( g.data(), g_d, rows * cols, cudaMemcpyDeviceToHost );
+  cudaMemcpy( g.data(), g_d, rows * cols, cudaMemcpyDeviceToHost );
   cv::imwrite( "out.jpg", m_out );
   cudaFree( rgb_d);
   cudaFree( g_d);
