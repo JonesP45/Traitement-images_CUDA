@@ -37,7 +37,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int ro
 //        unsigned char p9 = mat_in[(row + 3) * cols + col + 3];
 //
 //        mat_out[row * cols + col] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
-}
+//}
 }
 
 void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
