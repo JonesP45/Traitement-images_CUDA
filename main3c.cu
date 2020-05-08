@@ -13,7 +13,7 @@ __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_
 
   //if (i*cols+j < 3*cols*rows) // equivalent
   // if (blockIdx.x>0 &&  )
-  if (j>2 && j<rows*3-3 && i>2 && i+k<cols-3)
+  if (j>0 && j<rows*3 && i>0 && i<cols)
   {
     mat_out[j * cols + i + k] = mat_in[j * cols + i + k];
 
@@ -23,9 +23,11 @@ __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_
 __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+  auto k = threadIdx.z;
+  i+=k;
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
+  if (j>2 && j<rows*3-3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p1 = mat_in[(j-3) * cols + i - 3];
@@ -45,9 +47,11 @@ __global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_
 __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+  auto k = threadIdx.z;
+  i+=k;
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3-3 && i<cols-3 && i>2)
+  if (j>2 && j<rows*3-3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p2 = mat_in[(j-3) * cols + i];
@@ -66,9 +70,11 @@ __global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::si
 __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
   auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+  auto k = threadIdx.z;
+  i+=k;
 
   //if (j<rows*3 && i<cols && j>3 )
-  if (j>2 && j<rows*3 && i<cols)
+  if (j>2 && j<rows*3-3)
   {
     //p1 à p9 correspondent aux 9 pixels à récupérer
     unsigned char p2 = mat_in[(j-3) * cols + i];
@@ -107,10 +113,12 @@ int main()
   cv::Mat m_out(rows, cols, CV_8UC3, g.data());
   unsigned char * mat_in;
   unsigned char * mat_out;
+  unsigned char * mat_tmp;
 
   //Init donnes kernel
   cudaMalloc( &mat_in, 3 * rows * cols );
   cudaMalloc( &mat_out, 3 * rows * cols );
+  cudaMalloc( &mat_tmp, 3 * rows * cols );
   cudaMemcpy( mat_in, rgb, 3 * rows * cols, cudaMemcpyHostToDevice );
 
 
@@ -129,10 +137,14 @@ int main()
   cudaEventRecord(start);
 
   //Appel kernel
-  copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
+
+  //Double appel
+  sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
+  edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);

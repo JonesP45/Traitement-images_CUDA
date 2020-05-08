@@ -7,14 +7,15 @@
 using namespace std;
 
 __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
-  auto i = blockIdx.x * blockDim.x + threadIdx.x;
-  auto j = blockIdx.y * blockDim.y + threadIdx.y;
+  auto i = blockIdx.x * (blockDim.x-2) + threadIdx.x;
+  auto j = blockIdx.y * (blockDim.y-2) + threadIdx.y;
 
   //if (i*cols+j < 3*cols*rows) // equivalent
   // if (blockIdx.x>0 &&  )
-  if (j>2 && j<rows*3-3 && i>2 && i<cols-3)
+  if (i<cols && j<rows)
+  //if (j>2 && j<rows*3-3 && i>2 && i<cols-3)
   {
-    mat_out[j * cols + i] = mat_in[j * cols + i];
+    mat_out[3*(j * cols + i)] = mat_in[3*(j * cols + i)];
 
   }
 }
@@ -99,6 +100,7 @@ int main()
   unsigned char * mat_out;
   unsigned char * mat_tmp;
 
+
   //Init donnes kernel
   cudaMalloc( &mat_in, 3 * rows * cols );
   cudaMalloc( &mat_out, 3 * rows * cols );
@@ -124,11 +126,11 @@ int main()
   // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Double appel
-  // sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
-  // edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
+  sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
+  edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
@@ -144,25 +146,11 @@ int main()
   cudaMemcpy( g.data(), mat_out, 3*rows * cols, cudaMemcpyDeviceToHost );
 
 
-
-  cv::imwrite( "out.jpg", m_out );
-
   cudaFree(mat_in);
   cudaFree(mat_out);
 
 
-//
-//   int cols = 5;
-//   int rows = 10;
-//   unsigned char * mat;
-//   cudaMalloc(mat, 3 * rows * cols );
-//   for (int i=0; i<cols*rows*3; i++)
-//   {
-//       mat[i] = i+1;
-//   }
-//   cv::Mat m = (rows, cols, CV_8UC3, mat);
-// cv::imwrite( "test.jpg", m );
-
+  cv::imwrite( "out.jpg", m_out );
 
   return 0;
 }
