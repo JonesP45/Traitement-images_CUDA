@@ -5,9 +5,9 @@
 #include <vector>
 
 void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
-    for (int row = 1; row < rows - 1; ++row) {
-        for (int col = 1; col < cols - 1; ++col) {
-            for (int rgb = 0; rgb < 3; ++rgb)
+    for (std::size_t row = 1; row < rows - 1; ++row) {
+        for (std::size_t col = 1; col < cols - 1; ++col) {
+            for (std::size_t rgb = 0; rgb < 3; ++rgb)
             {
                 unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
                 unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
@@ -25,9 +25,9 @@ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int col
 }
 
 void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
-    for (int row = 1; row < rows - 1; ++row) {
-        for (int col = 1; col < cols - 1; ++col) {
-            for (int rgb = 0; rgb < 3; ++rgb)
+    for (std::size_t row = 1; row < rows - 1; ++row) {
+        for (std::size_t col = 1; col < cols - 1; ++col) {
+            for (std::size_t rgb = 0; rgb < 3; ++rgb)
             {
                 unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
                 unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];

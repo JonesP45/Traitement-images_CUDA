@@ -7,7 +7,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
     {
-        for (int rgb = 0; rgb < 3; ++rgb) {
+        for (std::size_t rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
             unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
@@ -29,7 +29,7 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
     {
-        for (int rgb = 0; rgb < 3; ++rgb)
+        for (std::size_t rgb = 0; rgb < 3; ++rgb)
         {
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
             unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
