@@ -14,7 +14,7 @@ __global__ void donothing()
 
 int main()
 {
-  // Call the kernel on the CUDA device using 1 block of 1 thread.
+  // Call the kernel on the CUDA_prof device using 1 block of 1 thread.
   donothing<<< 1, 1 >>>();
   
   return 0;

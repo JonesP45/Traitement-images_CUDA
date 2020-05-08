@@ -27,7 +27,7 @@ int main()
     std::cerr << cudaGetErrorString( err ); // récupération du message associé au code erreur.
   }
 
-  // Récupération du code erreur pour les fonctions CUDA synchrones.
+  // Récupération du code erreur pour les fonctions CUDA_prof synchrones.
   err = cudaMemcpy( v.data(), v_d, v.size() * sizeof( int ), cudaMemcpyDeviceToHost );
   if( err != cudaSuccess )
   {

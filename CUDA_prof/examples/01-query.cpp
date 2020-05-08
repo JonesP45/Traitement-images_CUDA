@@ -1,5 +1,5 @@
 /**
- * Detect the number of CUDA capable devices.
+ * Detect the number of CUDA_prof capable devices.
  */
 
 #include <iostream>
