@@ -49,7 +49,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventRecord(start);
 
     // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, cols, rows);
+    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -104,6 +104,7 @@ int main()
     cout << elapsedTime << endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);*/
+    // Execution
     main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
 
     // Recup donnees kernel
