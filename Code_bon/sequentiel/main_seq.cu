@@ -67,7 +67,7 @@ void edge_detect(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int co
 }
 
 
-void main_blur(unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols)
+void main_blur_edge_detect(unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;
@@ -111,7 +111,7 @@ void main_sharpen(unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int row
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols)
+void main_edge_detect_blur(unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;
@@ -162,9 +162,9 @@ int main()
     cudaMallocHost(&rgb_out_edge_detect, taille_rgb);
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
-    main_blur(rgb_in, rgb_out_blur, rows, cols);
+    main_blur_edge_detect(rgb_in, rgb_out_blur, rows, cols);
     main_sharpen(rgb_in, rgb_out_sharpen, rows, cols);
-    main_edge_detect(rgb_in, rgb_out_edge_detect, rows, cols);
+    main_edge_detect_blur(rgb_in, rgb_out_edge_detect, rows, cols);
 
     //Recup donnees kernel
     cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
