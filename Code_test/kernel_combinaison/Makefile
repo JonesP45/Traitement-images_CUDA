@@ -1,8 +1,8 @@
 CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
 
-main: main_comb.cu
+main_comb: main_comb.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
-	rm main
+	rm main_comb
