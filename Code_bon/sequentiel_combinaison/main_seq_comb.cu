@@ -4,9 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-using namespace std;
-
-void blur(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     for (int row = 1; row < rows - 1; ++row) {
         for (int col = 1; col < cols - 1; ++col) {
             for (int rgb = 0; rgb < 3; ++rgb)
@@ -26,7 +24,7 @@ void blur(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     }
 }
 
-void sharpen(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     for (int row = 1; row < rows - 1; ++row) {
         for (int col = 1; col < cols - 1; ++col) {
             for (int rgb = 0; rgb < 3; ++rgb)
@@ -46,7 +44,7 @@ void sharpen(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) 
     }
 }
 
-void edge_detect(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     for (int row = 1; row < rows - 1; ++row) {
         for (int col = 1; col < cols - 1; ++col) {
             for (int rgb = 0; rgb < 3; ++rgb)
@@ -67,7 +65,7 @@ void edge_detect(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int co
 }
 
 
-void main_blur_edge_detect(unsigned char* rgb_in, unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols)
+void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;
@@ -82,15 +80,15 @@ void main_blur_edge_detect(unsigned char* rgb_in, unsigned char* rgb_tmp_blur_ed
     //Fin de chrono
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
-    cout << cudaGetErrorString(cudaGetLastError()) << endl;
+    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    cout << "blur_edge_detect: " << elapsedTime << endl;
+    std::cout << "blur_edge_detect_seq_comb: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect_blur(unsigned char* rgb_in, unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols)
+void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;
@@ -105,10 +103,10 @@ void main_edge_detect_blur(unsigned char* rgb_in, unsigned char* rgb_tmp_edge_de
     //Fin de chrono
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
-    cout << cudaGetErrorString(cudaGetLastError()) << endl;
+    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    cout << "edge_detect_blur: " << elapsedTime << endl;
+    std::cout << "edge_detect_blur_seq_comb: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }

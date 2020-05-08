@@ -1,11 +1,11 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-using namespace std;
-
-__global__ void blur(unsigned char* mat_in, unsigned char* mat_out, std::size_t cols, std::size_t rows) {
+__global__ void blur(const unsigned char* mat_in, unsigned char* mat_out, std::size_t cols, std::size_t rows) {
     auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+    auto pixelCourrant = j * cols + i;
 
     if (j >= 3 && j < (rows - 1) * 3 && i >= 1 && i < cols - 1)
     {
@@ -24,38 +24,62 @@ __global__ void blur(unsigned char* mat_in, unsigned char* mat_out, std::size_t 
     }
 }
 
-int main()
-{
-    //Declarations
-    cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
-    unsigned char* rgb = m_in.data;
-    int rows = m_in.rows;
-    int cols = m_in.cols;
-
-    vector<unsigned char> g(rows * cols * 3); //Pour recreer l'image
-    cv::Mat m_out(rows, cols, CV_8UC3, g.data());
-    unsigned char* mat_in;
-    unsigned char* mat_out;
-
-    //Init donnes kernel
-    cudaMalloc(&mat_in, 3 * rows * cols);
-    cudaMalloc(&mat_out, 3 * rows * cols);
-    cudaMemcpy(mat_in, rgb, 3 * rows * cols, cudaMemcpyHostToDevice);
-
-    dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1), 3 * ((rows - 1) / block.y + 1));
-
-    //Debut de chrono
+void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+    // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-    //Appel kernel
-    blur <<< grid, block >>> (mat_in, mat_out, cols, rows);
+    // Appel kernel
+    blur <<< grid, block >>> (rgb_in, rgb_out_blur, cols, rows);
 
-    //Fin de chrono
+    // Fin de chrono
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
+    float elapsedTime;
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+int main()
+{
+    // Declarations
+    cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
+    unsigned char* rgb = m_in.data;
+    int rows = m_in.rows;
+    int cols = m_in.cols;
+
+    size_t taille_rgb = 3 * rows * cols;
+    std::vector<unsigned char> g_blur(taille_rgb);
+    cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
+
+    unsigned char* rgb_in;
+    unsigned char* rgb_out_blur;
+
+    // Init donnes kernel
+    cudaMalloc(&rgb_in, taille_rgb);
+    cudaMalloc(&rgb_out_blur, taille_rgb);
+    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+
+    dim3 block(32, 32); //nb de thread, max 1024
+    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
+
+    /*// Debut de chrono
+    cudaEvent_t start;
+    cudaEvent_t stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+
+    // Appel kernel
+    blur <<< grid, block >>> (rgb_in, rgb_out_blur, cols, rows);
+
+    // Fin de chrono
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cout << cudaGetErrorString(cudaGetLastError()) << endl;
@@ -63,15 +87,16 @@ int main()
     cudaEventElapsedTime(&elapsedTime, start, stop);
     cout << elapsedTime << endl;
     cudaEventDestroy(start);
-    cudaEventDestroy(stop);
+    cudaEventDestroy(stop);*/
+    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
 
-    //Recup donnees kernel
-    cudaMemcpy(g.data(), mat_out, 3 * rows * cols, cudaMemcpyDeviceToHost);
+    // Recup donnees kernel
+    cudaMemcpy(g_blur.data(), rgb_out_blur, 3 * rows * cols, cudaMemcpyDeviceToHost);
+    cv::imwrite("out_kernel_blur.jpg", m_out_blur);
 
-    cv::imwrite("out.jpg", m_out);
-
-    cudaFree(mat_in);
-    cudaFree(mat_out);
+    // Nettoyage memoire
+    cudaFree(rgb_in);
+    cudaFree(rgb_out_blur);
 
     return 0;
 }
