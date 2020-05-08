@@ -136,7 +136,7 @@ void main_edge_detect_blur(unsigned char* rgb_in, unsigned char* rgb_out_edge_de
 
 int main()
 {
-    //Declarations
+    // Declarations
     cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
     auto rgb = m_in.data;
     auto rows = m_in.rows;
@@ -155,24 +155,27 @@ int main()
     unsigned char* rgb_out_sharpen;
     unsigned char* rgb_out_edge_detect;
 
-    //Init donnes kernel
+    // Init donnes kernel
     cudaMallocHost(&rgb_in, taille_rgb);
     cudaMallocHost(&rgb_out_blur, taille_rgb);
     cudaMallocHost(&rgb_out_sharpen, taille_rgb);
     cudaMallocHost(&rgb_out_edge_detect, taille_rgb);
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
+    // Execution
     main_blur_edge_detect(rgb_in, rgb_out_blur, rows, cols);
     main_sharpen(rgb_in, rgb_out_sharpen, rows, cols);
     main_edge_detect_blur(rgb_in, rgb_out_edge_detect, rows, cols);
 
-    //Recup donnees kernel
+    // Recup donnees kernel
     cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
     cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
     cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
     cv::imwrite("out_seq_blur.jpg", m_out_blur);
     cv::imwrite("out_seq_sharpen.jpg", m_out_sharpen);
     cv::imwrite("out_seq_edge_detect.jpg", m_out_edge_detect);
+
+    // Nettoyage memoire
     cudaFree(rgb_in);
     cudaFree(rgb_out_blur);
     cudaFree(rgb_out_sharpen);
