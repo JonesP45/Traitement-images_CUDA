@@ -1,27 +1,43 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-__global__ void blur(const unsigned char* mat_in, unsigned char* mat_out, std::size_t cols, std::size_t rows) {
-    auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
-    auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+    auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-    auto pixelCourrant = j * cols + i;
-
-    if (j >= 3 && j < (rows - 1) * 3 && i >= 1 && i < cols - 1)
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
     {
-        //p1 à p9 correspondent aux 9 pixels à récupérer
-        unsigned char p1 = mat_in[(j - 3) * cols + i - 3];
-        unsigned char p2 = mat_in[(j - 3) * cols + i];
-        unsigned char p3 = mat_in[(j - 3) * cols + i + 3];
-        unsigned char p4 = mat_in[j * cols + i - 3];
-        unsigned char p5 = mat_in[j * cols + i];
-        unsigned char p6 = mat_in[j * cols + i + 3];
-        unsigned char p7 = mat_in[(j + 3) * cols + i - 3];
-        unsigned char p8 = mat_in[(j + 3) * cols + i];
-        unsigned char p9 = mat_in[(j + 3) * cols + i + 3];
+        for (int rgb = 0; rgb < 3; ++rgb) {
 
-        mat_out[j * cols + i] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
+            unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
+            unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
+            unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
+            unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
+            unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
+            unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
+            unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
+            unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
+            unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
+
+            rgb_out[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+        }
     }
+
+//    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
+//    {
+//        //p1 à p9 correspondent aux 9 pixels à récupérer
+//        unsigned char p1 = mat_in[(row - 3) * cols + col - 3];
+//        unsigned char p2 = mat_in[(row - 3) * cols + col];
+//        unsigned char p3 = mat_in[(row - 3) * cols + col + 3];
+//        unsigned char p4 = mat_in[row * cols + col - 3];
+//        unsigned char p5 = mat_in[row * cols + col];
+//        unsigned char p6 = mat_in[row * cols + col + 3];
+//        unsigned char p7 = mat_in[(row + 3) * cols + col - 3];
+//        unsigned char p8 = mat_in[(row + 3) * cols + col];
+//        unsigned char p9 = mat_in[(row + 3) * cols + col + 3];
+//
+//        mat_out[row * cols + col] = (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) / 9;
+}
 }
 
 void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
