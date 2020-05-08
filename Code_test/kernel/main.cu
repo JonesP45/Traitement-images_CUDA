@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
@@ -18,9 +18,76 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int ro
             unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
             unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
 
-            rgb_out[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+            rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
         }
     }
+}
+
+__global__ void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
+    auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
+    {
+        for (int rgb = 0; rgb < 3; ++rgb)
+        {
+            unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
+            unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
+            unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
+            unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
+            unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
+            int somme = (-3 * (h + g + d + b) + 21 * c) / 9;
+
+            if (somme > 255) somme = 255;
+            if (somme < 0) somme = 0;
+            rgb_out_sharpen[3 * (row * cols + col) + rgb] = somme;
+        }
+    }
+}
+
+__global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
+    auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
+    {
+        for (int rgb = 0; rgb < 3; ++rgb)
+        {
+            unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
+            unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
+            unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
+            unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
+            unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
+            int somme = (9 * (h + g + d + b) - 36 * c) / 9;
+
+            if (somme > 255) somme = 255;
+            if (somme < 0) somme = 0;
+            rgb_out_edge_detect[3 * (row * cols + col) + rgb] = somme;
+        }
+    }
+}
+
+
+void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+    // Debut de chrono
+    cudaEvent_t start;
+    cudaEvent_t stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+
+    // Appel kernel
+    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+
+    // Fin de chrono
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
+    float elapsedTime;
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 }
 
 void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
@@ -45,6 +112,29 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventDestroy(stop);
 }
 
+void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+    // Debut de chrono
+    cudaEvent_t start;
+    cudaEvent_t stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+
+    // Appel kernel
+    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+
+    // Fin de chrono
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
+    float elapsedTime;
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
 int main()
 {
     // Declarations
@@ -68,46 +158,8 @@ int main()
     dim3 block(32, 32); //nb de thread, max 1024
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
 
-    // Debut de chrono
-    cudaEvent_t start;
-    cudaEvent_t stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-
-    // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
-
-    // Fin de chrono
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
-    float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_kernel: " << elapsedTime << std::endl;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
-    /*// Debut de chrono
-    cudaEvent_t start;
-    cudaEvent_t stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-
-    // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, cols, rows);
-
-    // Fin de chrono
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    cout << cudaGetErrorString(cudaGetLastError()) << endl;
-    float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
-    cout << elapsedTime << endl;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);*/
     // Execution
-//    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
 
     // Recup donnees kernel
     cudaMemcpy(g_blur.data(), rgb_out_blur, 3 * rows * cols, cudaMemcpyDeviceToHost);
