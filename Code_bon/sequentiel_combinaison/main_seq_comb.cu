@@ -65,7 +65,8 @@ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, 
 }
 
 
-void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols)
+void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_blur_edge_detect,
+        unsigned char* rgb_out_blur_edge_detect, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;
@@ -88,7 +89,8 @@ void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_b
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols)
+void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_edge_detect_blur,
+        unsigned char* rgb_out_edge_detect_blur, int rows, int cols)
 {
     //Debut de chrono
     cudaEvent_t start;

@@ -90,7 +90,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventDestroy(stop);
 }
 
-void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -99,7 +99,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventRecord(start);
 
     // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+    sharpen <<< grid, block >>> (rgb_in, rgb_out_sharpen, rows, cols);
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -107,12 +107,12 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    std::cout << "sharpen_kernel: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
 
-void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -121,7 +121,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventRecord(start);
 
     // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+    edge_detect <<< grid, block >>> (rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -129,7 +129,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    std::cout << "edge_detect_kernel: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -145,14 +145,22 @@ int main()
 
     size_t taille_rgb = 3 * rows * cols;
     std::vector<unsigned char> g_blur(taille_rgb);
+    std::vector<unsigned char> g_sharpen(taille_rgb);
+    std::vector<unsigned char> g_edge_detect(taille_rgb);
     cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
+    cv::Mat m_out_sharpen(rows, cols, CV_8UC3, g_sharpen.data());
+    cv::Mat m_out_edge_detect(rows, cols, CV_8UC3, g_edge_detect.data());
 
     unsigned char* rgb_in;
     unsigned char* rgb_out_blur;
+    unsigned char* rgb_out_sharpen;
+    unsigned char* rgb_out_edge_detect;
 
     // Init donnes kernel
     cudaMalloc(&rgb_in, taille_rgb);
     cudaMalloc(&rgb_out_blur, taille_rgb);
+    cudaMalloc(&rgb_out_sharpen, taille_rgb);
+    cudaMalloc(&rgb_out_edge_detect, taille_rgb);
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
     dim3 block(32, 32); //nb de thread, max 1024
@@ -160,14 +168,22 @@ int main()
 
     // Execution
     main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
+    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Recup donnees kernel
-    cudaMemcpy(g_blur.data(), rgb_out_blur, 3 * rows * cols, cudaMemcpyDeviceToHost);
+    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
     cv::imwrite("out_kernel_blur.jpg", m_out_blur);
+    cv::imwrite("out_kernel_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_kernel_edge_detect.jpg", m_out_edge_detect);
 
     // Nettoyage memoire
     cudaFree(rgb_in);
     cudaFree(rgb_out_blur);
+    cudaFree(rgb_out_sharpen);
+    cudaFree(rgb_out_edge_detect);
 
     return 0;
 }
