@@ -1,5 +1,5 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
 
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -37,15 +37,6 @@ void sharpen(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) 
                 unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
                 unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
                 int somme = (-3 * (h + g + d + b) + 21 * c) / 9;
-            	
-                // unsigned char tmp = static_cast<unsigned char>(somme);
-                // if (somme > 255) {
-                //     tmp = static_cast<unsigned char>(255);
-                // }
-                // else if (somme < 0) {
-                //     tmp = static_cast<unsigned char>(0);
-                // }
-                // rgb_out[3 * (row * cols + col) + rgb] = tmp;
                 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
@@ -66,15 +57,6 @@ void edge_detect(unsigned char* rgb_in, unsigned char* rgb_out, int rows, int co
                 unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
                 unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
                 int somme = (9 * (h + g + d + b) - 36 * c) / 9;
-            	
-                // unsigned char tmp = static_cast<unsigned char>(somme);
-                // if (somme > 255) {
-                //     tmp = static_cast<unsigned char>(255);
-                // }
-                // else if (somme < 0) {
-                //     tmp = static_cast<unsigned char>(0);
-                // }
-                // rgb_out[3 * (row * cols + col) + rgb] = tmp;
 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
