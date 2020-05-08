@@ -24,26 +24,6 @@ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int col
     }
 }
 
-void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
-    for (int row = 1; row < rows - 1; ++row) {
-        for (int col = 1; col < cols - 1; ++col) {
-            for (int rgb = 0; rgb < 3; ++rgb)
-            {
-                unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
-                unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
-                unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
-                unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
-                unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
-                int somme = (-3 * (h + g + d + b) + 21 * c) / 9;
-
-                if (somme > 255) somme = 255;
-                if (somme < 0) somme = 0;
-                rgb_out[3 * (row * cols + col) + rgb] = somme;
-            }
-        }
-    }
-}
-
 void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     for (int row = 1; row < rows - 1; ++row) {
         for (int col = 1; col < cols - 1; ++col) {
