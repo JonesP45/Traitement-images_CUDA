@@ -12,10 +12,10 @@ __global__ void copy(unsigned char * mat_in, unsigned char * mat_out, std::size_
 
   //if (i*cols+j < 3*cols*rows) // equivalent
   // if (blockIdx.x>0 &&  )
-  if (i<cols && j<rows)
-  //if (j>2 && j<rows*3-3 && i>2 && i<cols-3)
+  // if (i<rows && j<cols)
+  if (j>2)
   {
-    mat_out[3*(j * cols + i)] = mat_in[3*(j * cols + i)];
+    mat_out[j * cols + i] = mat_in[j * cols + i];
 
   }
 }
@@ -123,14 +123,14 @@ int main()
   cudaEventRecord(start);
 
   //Appel simple kernel
-  // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Double appel
-  sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
-  edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
+  // sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
+  // edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
