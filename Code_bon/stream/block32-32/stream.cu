@@ -68,7 +68,7 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -78,7 +78,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        blur <<< grid, block, 0, streams[i] >>>(rgb_in, rgb_out_blur, rows, cols);
+        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, rows, cols);
     }
 
     // Fin de chrono
@@ -92,7 +92,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
     cudaEventDestroy(stop);
 }
 
-void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
+void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams, int taille_rgb, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -102,7 +102,7 @@ void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        sharpen<<< grid, block, 0, streams[i] >>>(rgb_in, rgb_out_sharpen, rows, cols);
+        sharpen<<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / 2, rgb_out_sharpen + i * taille_rgb / 2, rows, cols);
     }
     // Fin de chrono
     cudaEventRecord(stop);
@@ -115,7 +115,7 @@ void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
+void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* streams, int taille_rgb, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -125,7 +125,7 @@ void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* str
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        edge_detect <<< grid, block, 0, streams[i] >>> (rgb_in, rgb_out_edge_detect, rows, cols);
+        edge_detect <<< grid, block, 0, streams[i] >>> (rgb_in + i * taille_rgb / 2, rgb_out_edge_detect + i * taille_rgb / 2, rows, cols);
     }
 
     // Fin de chrono
@@ -190,9 +190,9 @@ int main()
     dim3 grid(((cols - 1) / block.x + 1) / 2 + 1, (rows - 1) / block.y + 1);
 
     // Execution
-    main_blur(grid, block, streams, taille_stream, rgb_in, rgb_out_blur, rows, cols);
-    main_sharpen(grid, block, streams, taille_stream, rgb_in, rgb_out_sharpen, rows, cols);
-    main_edge_detect(grid, block, streams, taille_stream, rgb_in, rgb_out_edge_detect, rows, cols);
+    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
+    main_sharpen(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_sharpen, rows, cols);
+    main_edge_detect(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {

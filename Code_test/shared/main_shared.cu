@@ -86,7 +86,6 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
     }
 }
 
-
 __global__ void blur_and_edge_detect(unsigned char * rgb_in, unsigned char * rgb_out, std::size_t rows, std::size_t cols) {
     auto col = blockIdx.x * (blockDim.x-2) + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * (blockDim.y-2) + threadIdx.y; //pos de la couleur sur y
@@ -184,6 +183,7 @@ __global__ void edge_detect_and_blur(unsigned char * rgb_in, unsigned char * rgb
 }
 
 
+
 int main()
 {
     // Declarations
@@ -205,7 +205,7 @@ int main()
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / (block.x - 2) + 1), (rows - 1) / (block.y - 2) + 1);
+    dim3 grid(((cols - 1) / (block.x-2) + 1), (rows - 1) / (block.y-2) + 1);
 
     // Debut de chrono
     cudaEvent_t start;
