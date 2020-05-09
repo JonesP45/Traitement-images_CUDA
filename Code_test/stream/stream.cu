@@ -68,7 +68,7 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -77,7 +77,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventRecord(start);
 
     // Appel kernel
-    blur <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+    blur <<< grid, block, 0, &streams >>> (rgb_in, rgb_out_blur, rows, cols);
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -188,22 +188,20 @@ int main()
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
 
     // Execution
-    main_blur(grid, block, &streams, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid, block, streams, rgb_in, rgb_out_blur, rows, cols);
 //    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
 //    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
 
-
-//    for (std::size_t i = 0; i < taille_stream; ++i) {
-//        cudaMemcpyAsync( v0_h + i*size/2, v0_d + i*size/2, sizeb/2, cudaMemcpyDeviceToHost, streams[ i ] );
-//    }
-
+    // Recup donnees kernel
+    for (std::size_t i = 0; i < taille_stream; ++i) {
+        cudaMemcpyAsync(g_blur.data() + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
+    }
+//    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
     cudaDeviceSynchronize();
     for (std::size_t i = 0; i < 2; ++i ) {
         cudaStreamDestroy(streams[i]);
     }
 
-    // Recup donnees kernel
-    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
 //    cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
 //    cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
     cv::imwrite("out_kernel_blur.jpg", m_out_blur);
