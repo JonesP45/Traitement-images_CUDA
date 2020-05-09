@@ -85,7 +85,7 @@ int main()
 
     for( std::size_t i = 0 ; i < size ; ++i )
     {
-        std::cout << v0_h[ i ] << std::endl;
+        std::cout << v0_d[ i ] << std::endl;
     }
 
     cudaFree( v0_d );
