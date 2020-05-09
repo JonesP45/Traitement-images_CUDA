@@ -10,6 +10,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
     col < cols - 1 &&
     (i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1))
     {
+        printf("_%d %d_", row, col);
 //        if ((i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1)) {
             for (int rgb = 0; rgb < 3; ++rgb) {
                 unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
@@ -26,9 +27,9 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
             }
 //        }
     }
-//    else {
-//        printf("%d %d\n", col, row);
-//    }
+    else {
+        printf("-%d %d-", row, col);
+    }
 }
 
 
@@ -39,7 +40,6 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start);
-    std::cout << rows << ", " << cols << std::endl;
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
