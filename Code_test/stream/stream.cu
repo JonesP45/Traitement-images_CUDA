@@ -87,7 +87,7 @@ int main()
                 taille_rgb / taille_stream,cudaMemcpyHostToDevice, streams[i]);
     }
 
-    dim3 threadsPerBlock(32, 32/* / taille_stream*/); //nb de thread, max 1024
+    dim3 threadsPerBlock(32, 32 / taille_stream); //nb de thread, max 1024
     dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1), (rows - 1) / threadsPerBlock.y + 1/* / taille_stream + 1*/);
 
     // Execution
