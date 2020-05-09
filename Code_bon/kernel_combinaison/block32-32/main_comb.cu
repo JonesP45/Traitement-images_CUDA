@@ -130,7 +130,8 @@ int main()
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMalloc(&rgb_out_edge_detect_blur, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+    err = cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     dim3 block(32, 32); //nb de thread, max 1024
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
