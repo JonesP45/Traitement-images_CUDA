@@ -187,7 +187,7 @@ int main()
     }
 
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
+    dim3 grid(((cols - 1) / block.x + 1) / 2 + 1, (rows - 1) / block.y + 1);
 
     // Execution
     main_blur(grid, block, streams, taille_stream, rgb_in, rgb_out_blur, rows, cols);
