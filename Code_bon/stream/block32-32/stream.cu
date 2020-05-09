@@ -68,7 +68,7 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -78,7 +78,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
+        blur <<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
                 rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
     }
 
@@ -176,7 +176,7 @@ int main()
 //    err = cudaMalloc(&rgb_out_edge_detect, taille_rgb);
 //    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    std::size_t taille_stream = 3;
+    std::size_t taille_stream = 2;
     cudaStream_t streams[taille_stream];
     for (std::size_t i = 0; i < taille_stream; ++i) {
         cudaStreamCreate(&streams[i]);
@@ -189,14 +189,14 @@ int main()
 //        cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
     }
 
-    dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1) /*/ taille_stream + 1*/, (rows - 1) / block.y + 1);
+    dim3 threadsPerBlock(32/* / taille_stream*/, 32); //nb de thread, max 1024
+    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1)/* / taille_stream + 1*/, (rows - 1) / threadsPerBlock.y + 1);
 
     // Execution
-//    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
-    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
-//    main_sharpen(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_sharpen, rows, cols);
-//    main_edge_detect(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_edge_detect, rows, cols);
+//    main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
+//    main_sharpen(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_sharpen, rows, cols);
+//    main_edge_detect(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
