@@ -135,10 +135,10 @@ int main()
     cv::imwrite("out_seq_comb_edge_detect_blur.jpg", m_out_edge_detect_blur);
 
     // Nettoyage memoire
-    cudaFree(rgb_in);
-    cudaFree(rgb_tmp_blur_edge_detect);
-    cudaFree(rgb_tmp_edge_detect_blur);
-    cudaFree(rgb_out_blur_edge_detect);
-    cudaFree(rgb_out_edge_detect_blur);
+    cudaFreeHost(rgb_in);
+    cudaFreeHost(rgb_tmp_blur_edge_detect);
+    cudaFreeHost(rgb_tmp_edge_detect_blur);
+    cudaFreeHost(rgb_out_blur_edge_detect);
+    cudaFreeHost(rgb_out_edge_detect_blur);
     return 0;
 }

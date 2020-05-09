@@ -174,9 +174,9 @@ int main()
     cv::imwrite("out_seq_edge_detect.jpg", m_out_edge_detect);
 
     // Nettoyage memoire
-    cudaFree(rgb_in);
-    cudaFree(rgb_out_blur);
-    cudaFree(rgb_out_sharpen);
-    cudaFree(rgb_out_edge_detect);
+    cudaFreeHost(rgb_in);
+    cudaFreeHost(rgb_out_blur);
+    cudaFreeHost(rgb_out_sharpen);
+    cudaFreeHost(rgb_out_edge_detect);
     return 0;
 }

@@ -178,12 +178,9 @@ int main()
     }
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
+        cudaMemcpyAsync(rgb_in + i * taille_rgb / 2, rgb + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
         cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
-//        cudaMemcpyAsync(v1_d + i * taille_rgb / 2, v1_h + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
     }
-
-
-
 
 
 
@@ -191,9 +188,19 @@ int main()
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
 
     // Execution
-    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid, block, &streams, rgb_in, rgb_out_blur, rows, cols);
 //    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
 //    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
+
+
+//    for (std::size_t i = 0; i < taille_stream; ++i) {
+//        cudaMemcpyAsync( v0_h + i*size/2, v0_d + i*size/2, sizeb/2, cudaMemcpyDeviceToHost, streams[ i ] );
+//    }
+
+    cudaDeviceSynchronize();
+    for (std::size_t i = 0; i < 2; ++i ) {
+        cudaStreamDestroy(streams[i]);
+    }
 
     // Recup donnees kernel
     cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);

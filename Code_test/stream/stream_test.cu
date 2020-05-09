@@ -65,10 +65,10 @@ int main()
     }
   */
 
-    for( std::size_t i = 0 ; i < 2 ; ++i )
-    {
-        cudaMemcpyAsync( v0_h + i*size/2, v0_d + i*size/2, sizeb/2, cudaMemcpyDeviceToHost, streams[ i ] );
-    }
+//    for( std::size_t i = 0 ; i < 2 ; ++i )
+//    {
+//        cudaMemcpyAsync( v0_h + i*size/2, v0_d + i*size/2, sizeb/2, cudaMemcpyDeviceToHost, streams[ i ] );
+//    }
 
     cudaDeviceSynchronize();
     /*
