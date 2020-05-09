@@ -5,7 +5,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-    if (col >= 1 && col < cols - 1 && row >= 1 && row < row - 1) {
+    if (col >= 1 && col < cols - 1 && row >= 1 && row < rows - 1) {
 //        (i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1)) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
