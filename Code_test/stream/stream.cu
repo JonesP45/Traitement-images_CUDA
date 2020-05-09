@@ -1,26 +1,30 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols, std::size_t taille_stream, std::size_t i) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
-//    if (col >= 1 && col < cols - 1)
+//    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
+    if (col >= 1 &&
+    col < cols - 1 &&
+    (i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1))
     {
-        for (int rgb = 0; rgb < 3; ++rgb) {
-            unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
-            unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
-            unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
-            unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
-            unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
-            unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
-            unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
-            unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
-            unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
+//        if ((i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1)) {
+            for (int rgb = 0; rgb < 3; ++rgb) {
+                unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
+                unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
+                unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
+                unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
+                unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
+                unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
+                unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
+                unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
+                unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
 
-            rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
-        }
+                rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+            }
+//        }
     }
 }
 
@@ -35,11 +39,8 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-//        blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-//                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
         blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream) +
-                (i != taille_stream - 1 ? 2 : 0), cols);
+                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream), cols, taille_stream, i);
     }
 
     // Fin de chrono
