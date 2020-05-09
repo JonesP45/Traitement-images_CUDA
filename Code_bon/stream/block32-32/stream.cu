@@ -183,12 +183,14 @@ int main()
     }
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream, rgb + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream, cudaMemcpyHostToDevice, streams[i]);
+        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,
+                rgb + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream,
+                cudaMemcpyHostToDevice, streams[i]);
 //        cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
     }
 
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1) / taille_stream + 1, (rows - 1) / block.y + 1);
+    dim3 grid(((cols - 1) / block.x + 1) /*/ taille_stream + 1*/, (rows - 1) / block.y + 1);
 
     // Execution
 //    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
