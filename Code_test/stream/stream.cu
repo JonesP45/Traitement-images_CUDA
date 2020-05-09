@@ -87,12 +87,12 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_kernel: " << elapsedTime << std::endl;
+    std::cout << "blur_stream: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
 
-void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
+void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -101,20 +101,21 @@ void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in
     cudaEventRecord(start);
 
     // Appel kernel
-    sharpen <<< grid, block >>> (rgb_in, rgb_out_sharpen, rows, cols);
-
+    for (std::size_t i = 0; i < taille_stream; ++i) {
+        sharpen<<< grid, block, 0, streams[i] >>>(rgb_in, rgb_out_sharpen, rows, cols);
+    }
     // Fin de chrono
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "sharpen_kernel: " << elapsedTime << std::endl;
+    std::cout << "sharpen_stream: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
+void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -123,7 +124,9 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
     cudaEventRecord(start);
 
     // Appel kernel
-    edge_detect <<< grid, block >>> (rgb_in, rgb_out_edge_detect, rows, cols);
+    for (std::size_t i = 0; i < taille_stream; ++i) {
+        edge_detect <<< grid, block, 0, streams[i] >>> (rgb_in, rgb_out_edge_detect, rows, cols);
+    }
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -131,7 +134,7 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "edge_detect_kernel: " << elapsedTime << std::endl;
+    std::cout << "edge_detect_stream: " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -151,27 +154,26 @@ int main()
     size_t taille_rgb_memoire = taille_rgb * sizeof(unsigned char);
 
     std::vector<unsigned char> g_blur(taille_rgb);
-//    std::vector<unsigned char> g_sharpen(taille_rgb);
-//    std::vector<unsigned char> g_edge_detect(taille_rgb);
+    std::vector<unsigned char> g_sharpen(taille_rgb);
+    std::vector<unsigned char> g_edge_detect(taille_rgb);
     cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
-//    cv::Mat m_out_sharpen(rows, cols, CV_8UC3, g_sharpen.data());
-//    cv::Mat m_out_edge_detect(rows, cols, CV_8UC3, g_edge_detect.data());
+    cv::Mat m_out_sharpen(rows, cols, CV_8UC3, g_sharpen.data());
+    cv::Mat m_out_edge_detect(rows, cols, CV_8UC3, g_edge_detect.data());
 
     unsigned char* rgb_in = nullptr;
     unsigned char* rgb_out_blur = nullptr;
-//    unsigned char* rgb_out_sharpen;
-//    unsigned char* rgb_out_edge_detect;
+    unsigned char* rgb_out_sharpen = nullptr;
+    unsigned char* rgb_out_edge_detect = nullptr;
 
     // Init donnes kernel
     err = cudaMalloc(&rgb_in, taille_rgb);
-    if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMalloc(&rgb_out_blur, taille_rgb);
-    if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-//    cudaMalloc(&rgb_out_sharpen, taille_rgb);
-//    cudaMalloc(&rgb_out_edge_detect, taille_rgb);
-//    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
-
-
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMalloc(&rgb_out_sharpen, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMalloc(&rgb_out_edge_detect, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     std::size_t taille_stream = 2;
     cudaStream_t streams[taille_stream];
@@ -184,37 +186,35 @@ int main()
 //        cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
     }
 
-
-
     dim3 block(32, 32); //nb de thread, max 1024
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
 
     // Execution
     main_blur(grid, block, streams, taille_stream, rgb_in, rgb_out_blur, rows, cols);
-//    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
-//    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
+    main_sharpen(grid, block, streams, taille_stream, rgb_in, rgb_out_sharpen, rows, cols);
+    main_edge_detect(grid, block, streams, taille_stream, rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
         cudaMemcpyAsync(g_blur.data() + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
+        cudaMemcpyAsync(g_sharpen.data() + i * taille_rgb / 2, rgb_out_sharpen + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
+        cudaMemcpyAsync(g_edge_detect.data() + i * taille_rgb / 2, rgb_out_edge_detect + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
     }
-//    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+
     cudaDeviceSynchronize();
     for (std::size_t i = 0; i < 2; ++i ) {
         cudaStreamDestroy(streams[i]);
     }
 
-//    cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
-//    cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
-    cv::imwrite("out_kernel_blur.jpg", m_out_blur);
-//    cv::imwrite("out_kernel_sharpen.jpg", m_out_sharpen);
-//    cv::imwrite("out_kernel_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite("out_stream_blur.jpg", m_out_blur);
+    cv::imwrite("out_stream_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_stream_edge_detect.jpg", m_out_edge_detect);
 
     // Nettoyage memoire
     cudaFree(rgb_in);
     cudaFree(rgb_out_blur);
-//    cudaFree(rgb_out_sharpen);
-//    cudaFree(rgb_out_edge_detect);
+    cudaFree(rgb_out_sharpen);
+    cudaFree(rgb_out_edge_detect);
 
     return 0;
 }

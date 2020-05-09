@@ -138,6 +138,8 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
 int main()
 {
     // Declarations
+    cudaError_t err;
+
     cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
     unsigned char* rgb = m_in.data;
     int rows = m_in.rows;
@@ -157,10 +159,14 @@ int main()
     unsigned char* rgb_out_edge_detect;
 
     // Init donnes kernel
-    cudaMalloc(&rgb_in, taille_rgb);
-    cudaMalloc(&rgb_out_blur, taille_rgb);
-    cudaMalloc(&rgb_out_sharpen, taille_rgb);
-    cudaMalloc(&rgb_out_edge_detect, taille_rgb);
+    err = cudaMalloc(&rgb_in, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMalloc(&rgb_out_blur, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMalloc(&rgb_out_sharpen, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMalloc(&rgb_out_edge_detect, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
     dim3 block(32, 32); //nb de thread, max 1024

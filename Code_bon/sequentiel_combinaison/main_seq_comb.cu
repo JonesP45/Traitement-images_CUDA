@@ -97,6 +97,8 @@ void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_e
 int main()
 {
     // Declarations
+    cudaError_t err;
+
     cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
     auto rgb = m_in.data;
     auto rows = m_in.rows;
@@ -117,11 +119,16 @@ int main()
     unsigned char* rgb_out_edge_detect_blur;
 
     // Init donnes kernel
-    cudaMallocHost(&rgb_in, taille_rgb);
-    cudaMallocHost(&rgb_tmp_blur_edge_detect, taille_rgb);
-    cudaMallocHost(&rgb_tmp_edge_detect_blur, taille_rgb);
-    cudaMallocHost(&rgb_out_blur_edge_detect, taille_rgb);
-    cudaMallocHost(&rgb_out_edge_detect_blur, taille_rgb);
+    err = cudaMallocHost(&rgb_in, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMallocHost(&rgb_tmp_blur_edge_detect, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMallocHost(&rgb_tmp_edge_detect_blur, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMallocHost(&rgb_out_blur_edge_detect, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMallocHost(&rgb_out_edge_detect_blur, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
 
     // Execution
