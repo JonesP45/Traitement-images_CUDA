@@ -2,7 +2,7 @@ CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
 
 
-main3c: main3c.cu
+mainshared3c: mainshared3c.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 
 .PHONY: clean

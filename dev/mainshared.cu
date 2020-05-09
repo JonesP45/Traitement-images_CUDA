@@ -217,8 +217,8 @@ int main()
     // Appel kernel
     // blur <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
     // sharpen <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    // blur_and_edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
+    // edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
+    blur_and_edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
     // edge_detect_and_blur <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
 
     // Fin de chrono

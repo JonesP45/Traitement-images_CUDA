@@ -85,7 +85,7 @@ __global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std
 int main()
 {
   //Declarations
-  cv::Mat m_in = cv::imread("tulipe.jpg", cv::IMREAD_UNCHANGED);
+  cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
   unsigned char * rgb = m_in.data;
   int rows = m_in.rows;
   int cols = m_in.cols;
@@ -131,11 +131,15 @@ int main()
   // copy<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // blur<<< grid, block>>>(mat_in, mat_out, cols, rows);
   // sharpen<<< grid, block>>>(mat_in, mat_out, cols, rows);
-  edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
+  // edge_detect<<< grid, block>>>(mat_in, mat_out, cols, rows);
 
   //Double appel
-  // sharpen<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
+  // blur<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
   // edge_detect<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
+
+  //Double appel
+  edge_detect<<< grid, block>>>(mat_in, mat_tmp, cols, rows);
+  blur<<< grid, block>>>(mat_tmp, mat_out, cols, rows);
 
   //Fin de chrono
   cudaEventRecord(stop);
