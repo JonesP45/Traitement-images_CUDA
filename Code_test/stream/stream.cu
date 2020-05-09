@@ -35,9 +35,10 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
+        int r = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
+        std::cout << i << ", " << r << std::endl;
         blur<<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream) +
-                ((i == 0 || i == taille_stream - 1) ? 1 : 2), cols);
+                rgb_out_blur + i * taille_rgb / taille_stream, r, cols);
     }
 
     // Fin de chrono
@@ -86,13 +87,14 @@ int main()
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
         std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-        err = cudaMemcpyAsync(rgb_in + decalage,rgb + decalage, taille_rgb / taille_stream +
-                ((i == 0 || i == taille_stream - 1) ? one_line_rgb : 2 * one_line_rgb), cudaMemcpyHostToDevice, streams[i]);
+        std::size_t count = taille_rgb / taille_stream + ((i == 0 || i == taille_stream - 1) ? one_line_rgb : 2 * one_line_rgb);
+        std::cout << i << ", " << decalage << ", " << count << std::endl;
+        err = cudaMemcpyAsync(rgb_in + decalage,rgb + decalage, count, cudaMemcpyHostToDevice, streams[i]);
         if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     }
 
     dim3 block(32, 32 / taille_stream); //nb de thread par bloc, max 1024
-    dim3 grid(((cols - 1) / block.x + 1), ((rows / taille_stream - 1) / block.y + 1)); // nb de block
+    dim3 grid(((cols - 1) / block.x + 1), (((rows/* + (taille_stream - 1) * 2*/) / taille_stream - 1) / block.y + 1)); // nb de block
 
     // Execution
     main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
