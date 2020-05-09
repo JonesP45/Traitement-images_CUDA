@@ -27,7 +27,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
 //        }
     }
     else {
-        printf("%d%s%d", row, ", ", col);
+        printf("%d %d\n", row, col);
     }
 }
 
