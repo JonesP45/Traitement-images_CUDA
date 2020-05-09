@@ -37,7 +37,7 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
 //        blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
 //                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
         blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in/* + i * taille_rgb / taille_stream*/,
-                rgb_out_blur/* + i * taille_rgb / taille_stream*/, rows, (int) (cols / taille_stream));
+                rgb_out_blur/* + i * taille_rgb / taille_stream*/, (int) (rows / taille_stream), cols);
     }
 
     // Fin de chrono
@@ -63,7 +63,6 @@ int main()
     int cols = m_in.cols;
 
     size_t taille_rgb = 3 * rows * cols;
-    size_t taille_rgb_memoire = taille_rgb * sizeof(unsigned char);
 
     std::vector<unsigned char> g_blur(taille_rgb);
     cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
@@ -84,13 +83,12 @@ int main()
     }
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,
-                        rgb + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream,
-                        cudaMemcpyHostToDevice, streams[i]);
+        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,rgb + i * taille_rgb / taille_stream,
+                taille_rgb / taille_stream,cudaMemcpyHostToDevice, streams[i]);
     }
 
-    dim3 threadsPerBlock(32/* / taille_stream*/, 32); //nb de thread, max 1024
-    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1)/* / taille_stream + 1*/, (rows - 1) / threadsPerBlock.y + 1);
+    dim3 threadsPerBlock(32, 32/* / taille_stream*/); //nb de thread, max 1024
+    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1), (rows - 1) / threadsPerBlock.y + 1/* / taille_stream + 1*/);
 
     // Execution
     main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
@@ -98,7 +96,7 @@ int main()
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
         cudaMemcpyAsync(g_blur.data() + i * taille_rgb / taille_stream,
-                        rgb_out_blur + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream,
+                        rgb_out_blur + i * taille_rgb / taille_stream, taille_rgb / taille_stream,
                         cudaMemcpyDeviceToHost, streams[i]);
     }
 
