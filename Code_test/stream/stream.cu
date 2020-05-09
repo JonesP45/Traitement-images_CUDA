@@ -5,35 +5,27 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
-//    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
     if (col >= 1 &&
-    col < cols - 1 &&
-    (i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1))
-    {
-        printf("_%d %d_", row, col);
-//        if ((i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1)) {
-            for (int rgb = 0; rgb < 3; ++rgb) {
-                unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
-                unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
-                unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
-                unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
-                unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
-                unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
-                unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
-                unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
-                unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
+        col < cols - 1 &&
+        (i == 0 && row >= 1) || (i == taille_stream - 1 && row < rows - 1)) {
+        for (int rgb = 0; rgb < 3; ++rgb) {
+            unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
+            unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
+            unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
+            unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
+            unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
+            unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
+            unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
+            unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
+            unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
 
-                rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
-            }
-//        }
-    }
-    else {
-        printf("-%d %d-", row, col);
+            rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+        }
     }
 }
 
 
-void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -43,8 +35,8 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream), cols, taille_stream, i);
+        blur<<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
+                                                            rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream), cols, taille_stream, i);
     }
 
     // Fin de chrono
@@ -90,21 +82,25 @@ int main()
     }
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,rgb + i * taille_rgb / taille_stream,
-                taille_rgb / taille_stream,cudaMemcpyHostToDevice, streams[i]);
+        err = cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,rgb + i * taille_rgb / taille_stream,
+                        taille_rgb / taille_stream,cudaMemcpyHostToDevice, streams[i]);
+        if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     }
 
-    dim3 threadsPerBlock(32, 32 / taille_stream); //nb de thread, max 1024
-    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1), ((rows / taille_stream - 1) / threadsPerBlock.y + 1));
+    dim3 block(32, 32 / taille_stream); //nb de thread par bloc, max 1024
+    dim3 grid(((cols - 1) / block.x + 1), ((rows / taille_stream - 1) / block.y + 1)); // nb de block
 
     // Execution
-    main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(g_blur.data() + i * taille_rgb / taille_stream,
+        err = cudaMemcpyAsync(g_blur.data() + i * taille_rgb / taille_stream,
                         rgb_out_blur + i * taille_rgb / taille_stream, taille_rgb / taille_stream,
                         cudaMemcpyDeviceToHost, streams[i]);
+        if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     }
 
     cudaDeviceSynchronize();

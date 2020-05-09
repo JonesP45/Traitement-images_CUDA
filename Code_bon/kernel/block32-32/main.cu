@@ -174,13 +174,22 @@ int main()
 
     // Execution
     main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     // Recup donnees kernel
-    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
-    cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
-    cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     cv::imwrite("out_kernel_blur.jpg", m_out_blur);
     cv::imwrite("out_kernel_sharpen.jpg", m_out_sharpen);
     cv::imwrite("out_kernel_edge_detect.jpg", m_out_edge_detect);

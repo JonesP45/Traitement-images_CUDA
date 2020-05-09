@@ -164,7 +164,8 @@ int main()
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMallocHost(&rgb_out_edge_detect, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+    err = cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     // Execution
     main_blur_edge_detect(rgb_in, rgb_out_blur, rows, cols);
@@ -172,9 +173,12 @@ int main()
     main_edge_detect_blur(rgb_in, rgb_out_edge_detect, rows, cols);
 
     // Recup donnees kernel
-    cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
-    cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
-    cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     cv::imwrite("out_seq_blur.jpg", m_out_blur);
     cv::imwrite("out_seq_sharpen.jpg", m_out_sharpen);
     cv::imwrite("out_seq_edge_detect.jpg", m_out_edge_detect);
