@@ -89,7 +89,7 @@ int main()
     }
 
     dim3 threadsPerBlock(32, 32 / taille_stream); //nb de thread, max 1024
-    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1), (rows - 1) / threadsPerBlock.y + 1/* / taille_stream + 1*/);
+    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1), (rows - 1) / threadsPerBlock.y + 1 / taille_stream + 1);
 
     // Execution
     main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
