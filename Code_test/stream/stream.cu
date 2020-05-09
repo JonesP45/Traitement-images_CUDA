@@ -35,7 +35,7 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
         blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, rows, cols/*(int) (cols / taille_stream)*/);
+                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
     }
 
     // Fin de chrono
@@ -88,7 +88,7 @@ int main()
     }
 
     dim3 threadsPerBlock(32/* / taille_stream*/, 32); //nb de thread, max 1024
-    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1)/* / taille_stream + 1*/, (rows - 1) / threadsPerBlock.y + 1);
+    dim3 nbBlock(((cols - 1) / threadsPerBlock.x + 1) / taille_stream + 1, (rows - 1) / threadsPerBlock.y + 1);
 
     // Execution
     main_blur(nbBlock, threadsPerBlock, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
