@@ -40,7 +40,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
         std::cout << i << ", " << r << std::endl;
         std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
         blur<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
-                rgb_out_blur + i * taille_rgb / taille_stream, r, cols);
+                rgb_out_blur + decalage, r, cols);
     }
 
     // Fin de chrono
