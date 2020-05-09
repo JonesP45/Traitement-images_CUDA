@@ -6,6 +6,7 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
+//    if (col >= 1 && col < cols - 1)
     {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
@@ -37,7 +38,7 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
 //        blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
 //                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
         blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream), cols);
+                rgb_out_blur + i * taille_rgb / taille_stream, rows/*(int) (rows / taille_stream)*/, cols);
     }
 
     // Fin de chrono
