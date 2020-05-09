@@ -26,9 +26,9 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
             }
 //        }
     }
-    else {
-        printf("%d %d\n", col, row);
-    }
+//    else {
+//        printf("%d %d\n", col, row);
+//    }
 }
 
 
@@ -39,6 +39,7 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start);
+    std::cout << rows << ", " << cols << std::endl;
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
