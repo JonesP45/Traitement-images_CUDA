@@ -38,8 +38,8 @@ void main_blur(const dim3 nbBlock, const dim3 threadsPerBlock, const cudaStream_
 //        blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
 //                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
         blur<<< nbBlock, threadsPerBlock, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                rgb_out_blur + i * taille_rgb / taille_stream, /*rows*/(int) (rows / taille_stream) +
-                (i != taille_stream - 1 ? 1 : 0), cols);
+                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream) +
+                (i != taille_stream - 1 ? 1 : -1), cols);
     }
 
     // Fin de chrono
