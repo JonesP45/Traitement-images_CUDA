@@ -78,7 +78,8 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, rows, cols / 2);
+        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
+                rgb_out_blur + i * taille_rgb / taille_stream, rows, (int) (cols / taille_stream));
     }
 
     // Fin de chrono
@@ -182,12 +183,12 @@ int main()
     }
 
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(rgb_in + i * taille_rgb / 2, rgb + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
+        cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream, rgb + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream, cudaMemcpyHostToDevice, streams[i]);
 //        cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
     }
 
     dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / block.x + 1) / 2 + 1, (rows - 1) / block.y + 1);
+    dim3 grid(((cols - 1) / block.x + 1) / taille_stream + 1, (rows - 1) / block.y + 1);
 
     // Execution
 //    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
@@ -197,7 +198,9 @@ int main()
 
     // Recup donnees kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaMemcpyAsync(g_blur.data() + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
+        cudaMemcpyAsync(g_blur.data() + i * taille_rgb / taille_stream,
+                rgb_out_blur + i * taille_rgb / taille_stream, taille_rgb_memoire / taille_stream,
+                cudaMemcpyDeviceToHost, streams[i]);
 //        cudaMemcpyAsync(g_sharpen.data() + i * taille_rgb / 2, rgb_out_sharpen + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
 //        cudaMemcpyAsync(g_edge_detect.data() + i * taille_rgb / 2, rgb_out_edge_detect + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyDeviceToHost, streams[i]);
     }
