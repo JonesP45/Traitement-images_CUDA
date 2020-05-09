@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols/*, std::size_t taille_stream, std::size_t i*/) {
+__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
@@ -24,7 +24,8 @@ __global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, i
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream, int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, std::size_t taille_stream,
+        int taille_rgb, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -35,7 +36,8 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
         blur<<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / taille_stream,
-                                                            rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream), cols/*, taille_stream, i*/);
+                rgb_out_blur + i * taille_rgb / taille_stream, (int) (rows / taille_stream) +
+                ((i == 0 || i == taille_stream - 1) ? 1 : 2), cols);
     }
 
     // Fin de chrono
