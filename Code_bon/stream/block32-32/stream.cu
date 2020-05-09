@@ -78,7 +78,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, s
 
     // Appel kernel
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, rows, cols);
+        blur <<< grid, block, 0, streams[i] >>>(rgb_in + i * taille_rgb / 2, rgb_out_blur + i * taille_rgb / 2, rows, cols / 2);
     }
 
     // Fin de chrono
@@ -175,7 +175,7 @@ int main()
 //    err = cudaMalloc(&rgb_out_edge_detect, taille_rgb);
 //    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    std::size_t taille_stream = 2;
+    std::size_t taille_stream = 3;
     cudaStream_t streams[taille_stream];
     for (std::size_t i = 0; i < taille_stream; ++i) {
         cudaStreamCreate(&streams[i]);
@@ -190,6 +190,7 @@ int main()
     dim3 grid(((cols - 1) / block.x + 1) / 2 + 1, (rows - 1) / block.y + 1);
 
     // Execution
+//    main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
     main_blur(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_blur, rows, cols);
 //    main_sharpen(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_sharpen, rows, cols);
 //    main_edge_detect(grid, block, streams, taille_stream, taille_rgb, rgb_in, rgb_out_edge_detect, rows, cols);
@@ -202,7 +203,7 @@ int main()
     }
 
     cudaDeviceSynchronize();
-    for (std::size_t i = 0; i < 2; ++i ) {
+    for (std::size_t i = 0; i < taille_stream; ++i ) {
         cudaStreamDestroy(streams[i]);
     }
 
