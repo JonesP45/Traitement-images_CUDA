@@ -20,7 +20,7 @@ int main()
 //    int * v1_h = nullptr;
 
     int * v0_d = nullptr;
-    int * v1_d = nullptr;
+//    int * v1_d = nullptr;
 
     err = cudaMallocHost( &v0_h, sizeb );
     if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
@@ -34,8 +34,8 @@ int main()
 
     err = cudaMalloc( &v0_d, sizeb );
     if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    err = cudaMalloc( &v1_d, sizeb );
-    if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+//    err = cudaMalloc( &v1_d, sizeb );
+//    if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     cudaStream_t streams[ 2 ];
 
@@ -47,13 +47,14 @@ int main()
     for( std::size_t i = 0 ; i < 2 ; ++i )
     {
         cudaMemcpyAsync( v0_d + i*size/2, v0_h + i*size/2, sizeb/2, cudaMemcpyHostToDevice, streams[ i ] );
-        cudaMemcpyAsync( v1_d + i*size/2, v0_h + i*size/2, sizeb/2, cudaMemcpyHostToDevice, streams[ i ] );
+//        cudaMemcpyAsync( v1_d + i*size/2, v0_h + i*size/2, sizeb/2, cudaMemcpyHostToDevice, streams[ i ] );
 //        cudaMemcpyAsync( v1_d + i*size/2, v1_h + i*size/2, sizeb/2, cudaMemcpyHostToDevice, streams[ i ] );
     }
 
     for( std::size_t i = 0 ; i < 2 ; ++i )
     {
-        vecadd<<< 1, size/2, 0, streams[ i ] >>>( v0_d + i*size/2, v1_d + i*size/2, size/2 );
+        vecadd<<< 1, size/2, 0, streams[ i ] >>>( v0_d + i*size/2, v0_d + i*size/2, size/2 );
+//        vecadd<<< 1, size/2, 0, streams[ i ] >>>( v0_d + i*size/2, v1_d + i*size/2, size/2 );
     }
     /*
     cudaDeviceSynchronize();
@@ -88,7 +89,7 @@ int main()
     }
 
     cudaFree( v0_d );
-    cudaFree( v1_d );
+//    cudaFree( v1_d );
 
     cudaFreeHost( v0_h );
 //    cudaFreeHost( v1_h );

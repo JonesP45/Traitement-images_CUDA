@@ -160,21 +160,6 @@ int main()
 //    unsigned char* rgb_out_sharpen;
 //    unsigned char* rgb_out_edge_detect;
 
-
-    std::size_t taille_stream = 2;
-    cudaStream_t streams[taille_stream];
-    for (std::size_t i = 0; i < taille_stream; ++i) {
-        cudaStreamCreate(&streams[i]);
-    }
-
-    for( std::size_t i = 0; i < taille_stream; ++i )
-    {
-        cudaMemcpyAsync(v0_d + i * taille_rgb / 2, v0_h + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
-        cudaMemcpyAsync(v1_d + i * taille_rgb / 2, v1_h + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
-    }
-
-
-
     // Init donnes kernel
     err = cudaMalloc(&rgb_in, taille_rgb);
     if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
@@ -182,7 +167,25 @@ int main()
     if( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 //    cudaMalloc(&rgb_out_sharpen, taille_rgb);
 //    cudaMalloc(&rgb_out_edge_detect, taille_rgb);
-    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+//    cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
+
+
+
+    std::size_t taille_stream = 2;
+    cudaStream_t streams[taille_stream];
+    for (std::size_t i = 0; i < taille_stream; ++i) {
+        cudaStreamCreate(&streams[i]);
+    }
+
+    for (std::size_t i = 0; i < taille_stream; ++i) {
+        cudaMemcpyAsync(rgb_out_blur + i * taille_rgb / 2, rgb_in + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
+//        cudaMemcpyAsync(v1_d + i * taille_rgb / 2, v1_h + i * taille_rgb / 2, taille_rgb_memoire / 2, cudaMemcpyHostToDevice, streams[i]);
+    }
+
+
+
+
+
 
     dim3 block(32, 32); //nb de thread, max 1024
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
