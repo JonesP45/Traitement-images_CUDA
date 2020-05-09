@@ -80,9 +80,12 @@ int main()
         cudaStreamCreate(&streams[i]);
     }
 
+    int one_line_rgb = cols * 3;
     for (std::size_t i = 0; i < taille_stream; ++i) {
-        err = cudaMemcpyAsync(rgb_in + i * taille_rgb / taille_stream,rgb + i * taille_rgb / taille_stream,
-                        taille_rgb / taille_stream,cudaMemcpyHostToDevice, streams[i]);
+        std::size_t decalage = i * taille_rgb / taille_stream -
+                (i == 0 ? 0 : one_line_rgb);
+        err = cudaMemcpyAsync(rgb_in + decalage,rgb + decalage, taille_rgb / taille_stream +
+                ((i == 0 || i == taille_stream - 1) ? one_line_rgb : 2 * one_line_rgb), cudaMemcpyHostToDevice, streams[i]);
         if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     }
 
