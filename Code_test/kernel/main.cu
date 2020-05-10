@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-__global__ void blur32_32(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+__global__ void blur2D(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
@@ -23,7 +23,7 @@ __global__ void blur32_32(const unsigned char* rgb_in, unsigned char* rgb_out_bl
     }
 }
 
-__global__ void sharpen32_32(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
+__global__ void sharpen2D(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
@@ -45,7 +45,7 @@ __global__ void sharpen32_32(const unsigned char* rgb_in, unsigned char* rgb_out
     }
 }
 
-__global__ void edge_detect32_32(const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
+__global__ void edge_detect2D(const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 
@@ -68,6 +68,71 @@ __global__ void edge_detect32_32(const unsigned char* rgb_in, unsigned char* rgb
 }
 
 
+__global__ void blur(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+    auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+    auto k = threadIdx.z;
+
+    if (j >= 1 && j < rows - 1 && i >= 1 && i < cols - 1)
+    {
+        //p1 à p9 correspondent aux 9 pixels à récupérer
+        unsigned char p1 = mat_in[3 * ((j-1) * cols + i - 1) + k];
+        unsigned char p2 = mat_in[3 * ((j-1) * cols + i) + k];
+        unsigned char p3 = mat_in[3 * ((j-1) * cols + i + 1) + k];
+        unsigned char p4 = mat_in[3 * (j * cols + i - 1) + k];
+        unsigned char p5 = mat_in[3 * (j * cols + i) + k];
+        unsigned char p6 = mat_in[3 * (j * cols + i + 1) + k];
+        unsigned char p7 = mat_in[3 * ((j+1) * cols + i - 1) + k];
+        unsigned char p8 = mat_in[3 * ((j+1) * cols + i) + k];
+        unsigned char p9 = mat_in[3 * ((j+1) * cols + i + 1) + k];
+
+        mat_out[3 * (j * cols + i) + k] = (p1+p2+p3+p4+p5+p6+p7+p8+p9)/9;
+    }
+}
+
+__global__ void sharpen(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+    auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+    auto k = threadIdx.z;
+
+    if (j >= 1 && j < rows - 1 && i >= 1 && i < cols - 1)
+    {
+        //p1 à p9 correspondent aux 9 pixels à récupérer
+        unsigned char p2 = mat_in[3 * ((j-1) * cols + i) + k];
+        unsigned char p4 = mat_in[3 * (j * cols + i - 1) + k];
+        unsigned char p5 = mat_in[3 * (j * cols + i) + k];
+        unsigned char p6 = mat_in[3 * (j * cols + i + 1) + k];
+        unsigned char p8 = mat_in[3 * ((j+1) * cols + i) + k];
+
+        int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+        if (tmp > 255) tmp = 255;
+        if (tmp < 0) tmp = 0;
+        mat_out[3 * (j * cols + i) + k] = tmp;
+    }
+}
+
+__global__ void edge_detect(unsigned char * mat_in, unsigned char * mat_out, std::size_t cols, std::size_t rows) {
+    auto i = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
+    auto j = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
+    auto k = threadIdx.z;
+
+    if (j >= 1 && j < rows - 1 && i >= 1 && i < cols - 1)
+    {
+        //p1 à p9 correspondent aux 9 pixels à récupérer
+        unsigned char p2 = mat_in[3 * ((j-1) * cols + i) + k];
+        unsigned char p4 = mat_in[3 * (j * cols + i - 1) + k];
+        unsigned char p5 = mat_in[3 * (j * cols + i) + k];
+        unsigned char p6 = mat_in[3 * (j * cols + i + 1) + k];
+        unsigned char p8 = mat_in[3 * ((j+1) * cols + i) + k];
+
+        int tmp =  (9*(p2+p4+p6+p8)-36*p5)/9;
+        if (tmp > 255) tmp = 255;
+        if (tmp < 0) tmp = 0;
+        mat_out[3 * (j * cols + i) + k] = tmp;
+    }
+}
+
+
 void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -77,7 +142,11 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventRecord(start);
 
     // Appel kernel
-    blur32_32 <<< grid, block >>> (rgb_in, rgb_out_blur, rows, cols);
+    if (block.z == 1) {
+        blur2D <<< grid, block >>>(rgb_in, rgb_out_blur, rows, cols);
+    } else {
+        blur3D <<< grid, block >>>(rgb_in, rgb_out_blur, rows, cols);
+    }
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -174,18 +243,46 @@ int main()
     ///////////////////// block 32 32 ///////////////////////////////
     /////////////////////////////////////////////////////////////////
 
-    dim3 block(32, 32); //nb de thread, max 1024
-    std::cout << block.z << std::endl;
-    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
+    dim3 block_32_32(32, 32); //nb de thread, max 1024
+    dim3 grid_32_32(((cols - 1) / block_32_32.x + 1), (rows - 1) / block_32_32.y + 1);
 
     // Execution
-    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid_32_32, block_32_32, rgb_in, rgb_out_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
+    main_sharpen(grid_32_32, block_32_32, rgb_in, rgb_out_sharpen, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
+    main_edge_detect(grid_32_32, block_32_32, rgb_in, rgb_out_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    // Recup donnees kernel
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    cv::imwrite("out_kernel_block_32-32_blur.jpg", m_out_blur);
+    cv::imwrite("out_kernel_block_32-32_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_kernel_block_32-32_edge_detect.jpg", m_out_edge_detect);
+
+    /////////////////////////////////////////////////////////////////
+    ///////////////////// block 17 20 3 /////////////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    dim3 block_17_20_3(32, 32); //nb de thread, max 1024
+    dim3 grid_17_20_3(((cols - 1) / block_32_32.x + 1), (rows - 1) / block_32_32.y + 1);
+
+    // Execution
+    main_blur(grid_17_20_3, block_17_20_3, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_sharpen(grid_17_20_3, block_17_20_3, rgb_in, rgb_out_sharpen, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_edge_detect(grid_17_20_3, block_17_20_3, rgb_in, rgb_out_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
