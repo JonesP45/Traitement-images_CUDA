@@ -7,11 +7,16 @@ find_package(OpenCV REQUIRED)
 set(CMAKE_CUDA_STANDARD 14)
 
 add_executable(ProjetCUDA
-        main_seq.cu
-        main_kernel.cu
-        main_shared.cu
-        main_stream.cu
-        main.cu main_kernel.cuh)
+#        main_seq.cu
+#        main_kernel.cu main_kernel.cuh
+#        main_shared.cu
+#        main_stream.cu
+#        main.cu
+#        Code_final/sequentiel/main_seq.cu
+#        Code_final/kernel/main_kernel.cu
+        Code_final/shared/main_shared.cu
+#        Code_final/stream/main_stream.cu
+        )
 
 set_target_properties(
         ProjetCUDA

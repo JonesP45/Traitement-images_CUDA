@@ -231,7 +231,7 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned cha
 
     // Appel kernel
     if (block.z == 1) {
-        blur2D <<< grid, block >>> (rgb_in, rgb_out_blur_edge_detect, rows, cols);
+        blur2D <<< grid, block >>> (rgb_in, rgb_tmp_blur_edge_detect, rows, cols);
         edge_detect2D <<< grid, block >>> (rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
     } else {
         blur3D <<< grid, block >>> (rgb_in, rgb_tmp_blur_edge_detect, cols, rows);

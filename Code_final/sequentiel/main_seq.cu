@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
         for (std::size_t col = 1; col < cols - 1; ++col) {
             for (std::size_t rgb = 0; rgb < 3; ++rgb)
@@ -22,7 +22,7 @@ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int col
     }
 }
 
-void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
         for (std::size_t col = 1; col < cols - 1; ++col) {
             for (std::size_t rgb = 0; rgb < 3; ++rgb)
@@ -37,13 +37,13 @@ void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
 
-                rgb_out[3 * (row * cols + col) + rgb] = somme;
+                rgb_out_sharpen[3 * (row * cols + col) + rgb] = somme;
             }
         }
     }
 }
 
-void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
         for (std::size_t col = 1; col < cols - 1; ++col) {
             for (std::size_t rgb = 0; rgb < 3; ++rgb)
@@ -58,7 +58,7 @@ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
 
-                rgb_out[3 * (row * cols + col) + rgb] = somme;
+                rgb_out_edge_detect[3 * (row * cols + col) + rgb] = somme;
             }
         }
     }
