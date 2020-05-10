@@ -178,8 +178,8 @@ int main()
 
     unsigned char* rgb_in = nullptr;
     unsigned char* rgb_out_blur = nullptr;
-    unsigned char* rgb_out_sharpen;
-    unsigned char* rgb_out_edge_detect;
+    unsigned char* rgb_out_sharpen = nullptr;
+    unsigned char* rgb_out_edge_detect = nullptr;
 
     // Init donnes kernel
     err = cudaMalloc(&rgb_in, taille_rgb);
