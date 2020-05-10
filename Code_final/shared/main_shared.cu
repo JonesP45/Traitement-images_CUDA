@@ -171,7 +171,7 @@ __global__ void blur_edge_detect2D(const unsigned char * rgb_in, unsigned char *
 
     extern __shared__ unsigned char sh_blur_edge_detect2D[];
 
-    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1 && row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
@@ -217,10 +217,8 @@ __global__ void edge_detect_blur2D(const unsigned char * rgb_in, unsigned char *
 
     extern __shared__ unsigned char sh_edge_detect_blur2D[];
 
-    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1)
-    {
-        for (int rgb = 0; rgb < 3; ++rgb)
-        {
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+        for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
             unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
             unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
@@ -239,7 +237,8 @@ __global__ void edge_detect_blur2D(const unsigned char * rgb_in, unsigned char *
 
     auto ww = blockDim.x;
 
-    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1)) {
+    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = sh_edge_detect_blur2D[3 * ((lrow - 1) * ww + lcol - 1) + rgb];
             unsigned char h = sh_edge_detect_blur2D[3 * ((lrow - 1) * ww + lcol) + rgb];
@@ -285,7 +284,8 @@ __global__ void blur_edge_detect3D(const unsigned char * rgb_in, unsigned char *
 
     auto ww = blockDim.x;
 
-    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1)) {
+    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+    row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         unsigned char h = sh_blur_edge_detect3D[3 * ((lrow - 1) * ww + lcol) + rgb];
         unsigned char g = sh_blur_edge_detect3D[3 * (lrow * ww + lcol - 1) + rgb];
         unsigned char c = sh_blur_edge_detect3D[3 * (lrow * ww + lcol) + rgb];
@@ -311,17 +311,6 @@ __global__ void edge_detect_blur3D(const unsigned char * rgb_in, unsigned char *
     extern __shared__ unsigned char sh_edge_detect_blur3D[];
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
-//        unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
-//        unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
-//        unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
-//        unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
-//        unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
-//        unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
-//        unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
-//        unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
-//        unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
-//
-//        sh_edge_detect_blur3D[3 * (lrow * blockDim.x + lcol) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
         unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
         unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
         unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
@@ -339,18 +328,8 @@ __global__ void edge_detect_blur3D(const unsigned char * rgb_in, unsigned char *
 
     auto ww = blockDim.x;
 
-    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1)) {
-//        unsigned char h = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol) + rgb];
-//        unsigned char g = sh_edge_detect_blur3D[3 * (lrow * ww + lcol - 1) + rgb];
-//        unsigned char c = sh_edge_detect_blur3D[3 * (lrow * ww + lcol) + rgb];
-//        unsigned char d = sh_edge_detect_blur3D[3 * (lrow * ww + lcol + 1) + rgb];
-//        unsigned char b = sh_edge_detect_blur3D[3 * ((lrow + 1) * ww + lcol) + rgb];
-//        int somme = (9 * (h + g + d + b) - 36 * c) / 9;
-//
-//        if (somme > 255) somme = 255;
-//        if (somme < 0) somme = 0;
-//
-//        rgb_out_edge_detect_blur[3 * (row * cols + col) + rgb] = somme;
+    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+            row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         unsigned char hg = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol - 1) + rgb];
         unsigned char h = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol) + rgb];
         unsigned char hd = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol + 1) + rgb];
@@ -363,47 +342,6 @@ __global__ void edge_detect_blur3D(const unsigned char * rgb_in, unsigned char *
 
         rgb_out_edge_detect_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
     }
-
-    /*auto col = blockIdx.x * (blockDim.x - 2) + threadIdx.x; //pos de la couleur sur x
-    auto row = blockIdx.y * (blockDim.y - 2) + threadIdx.y; //pos de la couleur sur y
-    auto rgb = threadIdx.z;
-
-    auto lcol = threadIdx.x;
-    auto lrow = threadIdx.y;
-
-    extern __shared__ unsigned char sh_edge_detect_blur3D[];
-
-    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
-        unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
-        unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
-        unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
-        unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
-        unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
-        int somme = (9 * (h + g + d + b) - 36 * c) / 9;
-
-        if (somme > 255) somme = 255;
-        if (somme < 0) somme = 0;
-
-        sh_edge_detect_blur3D[3 * (lrow * blockDim.x + lcol) + rgb] = somme;
-    }
-
-    __syncthreads();
-
-    auto ww = blockDim.x;
-
-    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1)) {
-        unsigned char hg = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol - 1) + rgb];
-        unsigned char h = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol) + rgb];
-        unsigned char hd = sh_edge_detect_blur3D[3 * ((lrow - 1) * ww + lcol + 1) + rgb];
-        unsigned char g = sh_edge_detect_blur3D[3 * (lrow * ww + lcol - 1) + rgb];
-        unsigned char c = sh_edge_detect_blur3D[3 * (lrow * ww + lcol) + rgb];
-        unsigned char d = sh_edge_detect_blur3D[3 * (lrow * ww + lcol + 1) + rgb];
-        unsigned char bg = sh_edge_detect_blur3D[3 * ((lrow + 1) * ww + lcol - 1) + rgb];
-        unsigned char b = sh_edge_detect_blur3D[3 * ((lrow + 1) * ww + lcol) + rgb];
-        unsigned char bd = sh_edge_detect_blur3D[3 * ((lrow + 1) * ww + lcol + 1) + rgb];
-
-        rgb_out_edge_detect_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
-    }*/
 }
 
 
@@ -647,47 +585,47 @@ int main()
     ///////////////////// block 17 20 3 /////////////////////////////
     /////////////////////////////////////////////////////////////////
 
-//    dim3 block_17_20_3(17, 20, 3); //nb de thread, max 1024
-//    dim3 grid_17_20_3(((cols - 1) / (block_17_20_3.x - 2) + 1), (rows - 1) / (block_17_20_3.y - 2) + 1);
-//    auto shared = 3 * block_17_20_3.x * block_17_20_3.y;
-//
-//    // Execution
-//    main_blur(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_blur, rows, cols);
-//    err = cudaGetLastError();
-//    if ( err != cudaSuccess ) { std::cerr << "Error6" << std::endl; }
-//    main_sharpen(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_sharpen, rows, cols);
-//    err = cudaGetLastError();
-//    if ( err != cudaSuccess ) { std::cerr << "Error7" << std::endl; }
-//    main_edge_detect(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_edge_detect, rows, cols);
-//    err = cudaGetLastError();
-//    if ( err != cudaSuccess ) { std::cerr << "Error8" << std::endl; }
-//
-//    main_blur_edge_detect(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_blur_edge_detect, rows, cols);
-//    err = cudaGetLastError();
-//    if ( err != cudaSuccess ) { std::cerr << "Error9" << std::endl; }
-//    main_edge_detect_blur(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_edge_detect_blur, rows, cols);
-//    err = cudaGetLastError();
-//    if ( err != cudaSuccess ) { std::cerr << "Error10" << std::endl; }
-//
-//    // Recup donnees kernel
-//    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
-//    if ( err != cudaSuccess ) { std::cerr << "Error1" << std::endl; }
-//    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
-//    if ( err != cudaSuccess ) { std::cerr << "Error2" << std::endl; }
-//    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
-//    if ( err != cudaSuccess ) { std::cerr << "Error3" << std::endl; }
-//
-//    err = cudaMemcpy(g_blur_edge_detect.data(), rgb_out_blur_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
-//    if ( err != cudaSuccess ) { std::cerr << "Error4" << std::endl; }
-//    err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
-//    if ( err != cudaSuccess ) { std::cerr << "Error5" << std::endl; }
-//
-//    cv::imwrite("out_kernel_block_17-20-3_blur.jpg", m_out_blur);
-//    cv::imwrite("out_kernel_block_17-20-3_sharpen.jpg", m_out_sharpen);
-//    cv::imwrite("out_kernel_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
-//
-//    cv::imwrite("out_kernel_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
-//    cv::imwrite("out_kernel_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    dim3 block_17_20_3(17, 20, 3); //nb de thread, max 1024
+    dim3 grid_17_20_3(((cols - 1) / (block_17_20_3.x - 2) + 1), (rows - 1) / (block_17_20_3.y - 2) + 1);
+    shared = 3 * block_17_20_3.x * block_17_20_3.y;
+
+    // Execution
+    main_blur(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error6" << std::endl; }
+    main_sharpen(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_sharpen, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error7" << std::endl; }
+    main_edge_detect(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error8" << std::endl; }
+
+    main_blur_edge_detect(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_blur_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error9" << std::endl; }
+    main_edge_detect_blur(grid_17_20_3, block_17_20_3, shared, rgb_in, rgb_out_edge_detect_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error10" << std::endl; }
+
+    // Recup donnees kernel
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error1" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error2" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error3" << std::endl; }
+
+    err = cudaMemcpy(g_blur_edge_detect.data(), rgb_out_blur_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error4" << std::endl; }
+    err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error5" << std::endl; }
+
+    cv::imwrite("out_kernel_block_17-20-3_blur.jpg", m_out_blur);
+    cv::imwrite("out_kernel_block_17-20-3_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_kernel_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
+
+    cv::imwrite("out_kernel_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
+    cv::imwrite("out_kernel_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
