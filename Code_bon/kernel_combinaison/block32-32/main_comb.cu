@@ -46,8 +46,8 @@ __global__ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
-        unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols) {
+void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
+                           unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -70,8 +70,8 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
-        unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols) {
+void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
+                           unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -137,10 +137,10 @@ int main()
     dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
 
     // Execution
-    main_blur(grid, block, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
+    main_blur_edge_detect(grid, block, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect(grid, block, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
+    main_edge_detect_blur(grid, block, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 

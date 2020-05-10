@@ -1,7 +1,7 @@
 CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
 
-main: main.cu
+main: main_kernel.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
