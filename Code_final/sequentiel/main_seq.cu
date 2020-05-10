@@ -15,6 +15,7 @@ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int col
                 unsigned char bg = rgb_in[3 * ((row + 1) * cols + col - 1) + rgb];
                 unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
                 unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
+
                 rgb_out[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
             }
         }
@@ -35,6 +36,7 @@ void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int 
                 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
+
                 rgb_out[3 * (row * cols + col) + rgb] = somme;
             }
         }
@@ -55,6 +57,7 @@ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, 
 
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
+
                 rgb_out[3 * (row * cols + col) + rgb] = somme;
             }
         }

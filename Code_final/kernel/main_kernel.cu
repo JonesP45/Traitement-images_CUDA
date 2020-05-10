@@ -40,6 +40,7 @@ __global__ void sharpen2D(const unsigned char* rgb_in, unsigned char* rgb_out_sh
 
             if (somme > 255) somme = 255;
             if (somme < 0) somme = 0;
+
             rgb_out_sharpen[3 * (row * cols + col) + rgb] = somme;
         }
     }
@@ -62,6 +63,7 @@ __global__ void edge_detect2D(const unsigned char* rgb_in, unsigned char* rgb_ou
 
             if (somme > 255) somme = 255;
             if (somme < 0) somme = 0;
+
             rgb_out_edge_detect[3 * (row * cols + col) + rgb] = somme;
         }
     }
@@ -103,10 +105,11 @@ __global__ void sharpen3D(const unsigned char * mat_in, unsigned char * mat_out,
         unsigned char p5 = mat_in[3 * (j * cols + i) + k];
         unsigned char p6 = mat_in[3 * (j * cols + i + 1) + k];
         unsigned char p8 = mat_in[3 * ((j+1) * cols + i) + k];
-
         int tmp =  (-3*(p2+p4+p6+p8)+21*p5)/9;
+
         if (tmp > 255) tmp = 255;
         if (tmp < 0) tmp = 0;
+
         mat_out[3 * (j * cols + i) + k] = tmp;
     }
 }
@@ -124,10 +127,11 @@ __global__ void edge_detect3D(const unsigned char * mat_in, unsigned char * mat_
         unsigned char p5 = mat_in[3 * (j * cols + i) + k];
         unsigned char p6 = mat_in[3 * (j * cols + i + 1) + k];
         unsigned char p8 = mat_in[3 * ((j+1) * cols + i) + k];
-
         int tmp =  (9*(p2+p4+p6+p8)-36*p5)/9;
+
         if (tmp > 255) tmp = 255;
         if (tmp < 0) tmp = 0;
+
         mat_out[3 * (j * cols + i) + k] = tmp;
     }
 }
@@ -206,7 +210,7 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "edge_detect_kernel_" << block.x << "-" << block.y << "-" << block.z<< ": " << elapsedTime << std::endl;
+    std::cout << "edge_detect_kernel_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -236,7 +240,7 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned cha
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_edge_detect_kernel_" << block.x << "-" << block.y << "-" << block.z<< ": " << elapsedTime << std::endl;
+    std::cout << "blur_edge_detect_kernel_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -265,7 +269,7 @@ void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned cha
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "edge_detect_blur_kernel_" << block.x << "-" << block.y << "-" << block.z<< ": " << elapsedTime << std::endl;
+    std::cout << "edge_detect_blur_kernel_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
