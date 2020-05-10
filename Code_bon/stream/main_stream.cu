@@ -6,7 +6,7 @@ std::size_t taille_rgb = 0;
 std::size_t one_line_rgb = 0;
 
 
-__global__ void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+__global__ void blur2D(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
     auto row = blockIdx.y * blockDim.y + threadIdx.y; //pos de la couleur sur y
 

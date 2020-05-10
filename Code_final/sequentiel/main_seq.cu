@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
+void blur2D(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
         for (std::size_t col = 1; col < cols - 1; ++col) {
             for (std::size_t rgb = 0; rgb < 3; ++rgb)
@@ -16,7 +16,7 @@ void blur(const unsigned char* rgb_in, unsigned char* rgb_out, int rows, int col
                 unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
                 unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
 
-                rgb_out[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
+                rgb_out_blur[3 * (row * cols + col) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
             }
         }
     }
@@ -158,6 +158,7 @@ int main()
 
     size_t taille_rgb = 3 * rows * cols;
     std::vector< unsigned char > g_blur(taille_rgb);
+
     std::vector< unsigned char > g_sharpen(taille_rgb);
     std::vector< unsigned char > g_edge_detect(taille_rgb);
 
@@ -165,22 +166,23 @@ int main()
     std::vector< unsigned char > g_edge_detect_blur(taille_rgb);
 
     cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
+
     cv::Mat m_out_sharpen(rows, cols, CV_8UC3, g_sharpen.data());
     cv::Mat m_out_edge_detect(rows, cols, CV_8UC3, g_edge_detect.data());
 
     cv::Mat m_out_blur_edge_detect(rows, cols, CV_8UC3, g_blur_edge_detect.data());
     cv::Mat m_out_edge_detect_blur(rows, cols, CV_8UC3, g_edge_detect_blur.data());
 
-    unsigned char* rgb_in;
+    unsigned char* rgb_in = nullptr;
 
-    unsigned char* rgb_out_blur;
-    unsigned char* rgb_out_sharpen;
-    unsigned char* rgb_out_edge_detect;
+    unsigned char* rgb_out_blur = nullptr;
+    unsigned char* rgb_out_sharpen = nullptr;
+    unsigned char* rgb_out_edge_detect = nullptr;
 
-    unsigned char* rgb_tmp_blur_edge_detect;
-    unsigned char* rgb_tmp_edge_detect_blur;
-    unsigned char* rgb_out_blur_edge_detect;
-    unsigned char* rgb_out_edge_detect_blur;
+    unsigned char* rgb_tmp_blur_edge_detect = nullptr;
+    unsigned char* rgb_tmp_edge_detect_blur = nullptr;
+    unsigned char* rgb_out_blur_edge_detect = nullptr;
+    unsigned char* rgb_out_edge_detect_blur = nullptr;
 
     // Init donnes kernel
     err = cudaMallocHost(&rgb_in, taille_rgb);

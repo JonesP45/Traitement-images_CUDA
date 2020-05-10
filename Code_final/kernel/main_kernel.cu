@@ -137,7 +137,8 @@ __global__ void edge_detect3D(const unsigned char * mat_in, unsigned char * mat_
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
+void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_blur,
+        int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -163,7 +164,8 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     cudaEventDestroy(stop);
 }
 
-void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int rows, int cols) {
+void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_sharpen,
+        int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -189,7 +191,8 @@ void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect, int rows, int cols) {
+void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect,
+        int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -217,7 +220,8 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
 
 
 void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
-                           unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols) {
+                           unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect,
+                           int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -246,7 +250,8 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned cha
 }
 
 void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in,
-                           unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur, int rows, int cols) {
+                           unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_edge_detect_blur,
+                           int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
     cudaEvent_t stop;
@@ -287,6 +292,7 @@ int main()
 
     size_t taille_rgb = 3 * rows * cols;
     std::vector<unsigned char> g_blur(taille_rgb);
+
     std::vector<unsigned char> g_sharpen(taille_rgb);
     std::vector<unsigned char> g_edge_detect(taille_rgb);
 
@@ -300,16 +306,16 @@ int main()
     cv::Mat m_out_blur_edge_detect(rows, cols, CV_8UC3, g_blur_edge_detect.data());
     cv::Mat m_out_edge_detect_blur(rows, cols, CV_8UC3, g_edge_detect_blur.data());
 
-    unsigned char* rgb_in;
+    unsigned char* rgb_in = nullptr;
 
-    unsigned char* rgb_out_blur;
-    unsigned char* rgb_out_sharpen;
-    unsigned char* rgb_out_edge_detect;
+    unsigned char* rgb_out_blur = nullptr;
+    unsigned char* rgb_out_sharpen = nullptr;
+    unsigned char* rgb_out_edge_detect = nullptr;
 
-    unsigned char* rgb_tmp_blur_edge_detect;
-    unsigned char* rgb_tmp_edge_detect_blur;
-    unsigned char* rgb_out_blur_edge_detect;
-    unsigned char* rgb_out_edge_detect_blur;
+    unsigned char* rgb_tmp_blur_edge_detect = nullptr;
+    unsigned char* rgb_tmp_edge_detect_blur = nullptr;
+    unsigned char* rgb_out_blur_edge_detect = nullptr;
+    unsigned char* rgb_out_edge_detect_blur = nullptr;
 
     // Init donnes kernel
     err = cudaMalloc(&rgb_in, taille_rgb);
