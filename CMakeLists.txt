@@ -12,9 +12,11 @@ add_executable(ProjetCUDA
 #        Code_bon/sequentiel_combinaison/main_seq_comb.cu
 #        Code_bon/kernel/block32-32/main.cu
 #        Code_bon/kernel_combinaison/block32-32/main_comb.cu
-        Code_bon/stream/block32-32/main_stream.cu
-#        Code_test/shared/main_shared.cu
-#        Code_test/stream/stream.cu
+#        Code_bon/stream/block32-32/main_stream.cu
+#        Code_test/shared/block32-32/main_shared.cu
+#        Code_test/shared/block17-20-3/main_shared3c.cu
+#        Code_test/kernel/block17-20-3/main3c.cu
+        Code_test/kernel/main.cu
         )
 
 set_target_properties(

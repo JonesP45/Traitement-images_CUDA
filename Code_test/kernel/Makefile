@@ -1,8 +1,8 @@
 CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
 
-stream: stream.cu
+main: main.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
-	rm stream
+	rm main
