@@ -145,7 +145,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned char* rgb_in, u
     if (block.z == 1) {
         blur2D <<< grid, block >>>(rgb_in, rgb_out_blur, rows, cols);
     } else {
-        blur3D <<< grid, block >>>(rgb_in, rgb_out_blur, rows, cols);
+        blur3D <<< grid, block >>>(rgb_in, rgb_out_blur, cols, rows);
     }
 
     // Fin de chrono
@@ -169,7 +169,11 @@ void main_sharpen(const dim3 grid, const dim3 block, const unsigned char* rgb_in
     cudaEventRecord(start);
 
     // Appel kernel
-    sharpen2D <<< grid, block >>> (rgb_in, rgb_out_sharpen, rows, cols);
+    if (block.z == 1) {
+        sharpen2D <<< grid, block >>> (rgb_in, rgb_out_sharpen, rows, cols);
+    } else {
+        sharpen3D <<< grid, block >>> (rgb_in, rgb_out_sharpen, cols, rows);
+    }
 
     // Fin de chrono
     cudaEventRecord(stop);
@@ -192,7 +196,11 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned char* rg
     cudaEventRecord(start);
 
     // Appel kernel
-    edge_detect2D <<< grid, block >>> (rgb_in, rgb_out_edge_detect, rows, cols);
+    if (block.z == 1) {
+        edge_detect2D <<< grid, block >>> (rgb_in, rgb_out_edge_detect, rows, cols);
+    } else {
+        edge_detect3D <<< grid, block >>> (rgb_in, rgb_out_edge_detect, cols, rows);
+    }
 
     // Fin de chrono
     cudaEventRecord(stop);
