@@ -49,48 +49,34 @@ void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_b
         unsigned char* rgb_out_blur_edge_detect, int rows, int cols)
 {
     //Debut de chrono
-    cudaEvent_t start;
-    cudaEvent_t stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
 
     blur(rgb_in, rgb_tmp_blur_edge_detect, rows, cols);
     edge_detect(rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
 
     //Fin de chrono
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
-    float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    end = std::chrono::system_clock::now();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
+            (end-start).count();
     std::cout << "blur_edge_detect_seq_comb: " << elapsedTime << std::endl;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
 }
 
 void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_edge_detect_blur,
         unsigned char* rgb_out_edge_detect_blur, int rows, int cols)
 {
     //Debut de chrono
-    cudaEvent_t start;
-    cudaEvent_t stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
 
     edge_detect(rgb_in, rgb_tmp_edge_detect_blur, rows, cols);
     blur(rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
 
     //Fin de chrono
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
-    float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    end = std::chrono::system_clock::now();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
+            (end-start).count();
     std::cout << "edge_detect_blur_seq_comb: " << elapsedTime << std::endl;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
 }
 
 

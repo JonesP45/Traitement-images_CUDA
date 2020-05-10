@@ -10,12 +10,11 @@ set(CMAKE_CUDA_STANDARD 14)
 add_executable(ProjetCUDA
 #        Code_bon/sequentiel/main_seq.cu
 #        Code_bon/sequentiel_combinaison/main_seq_comb.cu
-        Code_bon/kernel/block32-32/main.cu
+#        Code_bon/kernel/block32-32/main.cu
 #        Code_bon/kernel_combinaison/block32-32/main_comb.cu
+        Code_bon/stream/block32-32/main_stream.cu
 #        Code_test/shared/main_shared.cu
 #        Code_test/stream/stream.cu
-#        test.cu
-#        kernel.cu kernel.cuh
         )
 
 set_target_properties(

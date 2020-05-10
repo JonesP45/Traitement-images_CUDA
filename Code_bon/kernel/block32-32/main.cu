@@ -140,16 +140,7 @@ int main()
     // Declarations
     cudaError_t err;
 
-//    auto filename_in = "in.jpg";
-//    auto filename_out_blur = R"(\out_kernel_blur.jpg)";
-//    auto filename_out_sharpen = R"(\out_kernel_sharpen.jpg)";
-//    auto filename_out_edge_detect = R"(\out_kernel_edge_detect.jpg)";
-//    auto path_in_win = R"(D:\Documents\Cours\M1\S2\ProgGraphique\Projet\github\ProjetCUDA\Code_bon\kernel\block32-32\in.jpg)";
-//    auto path_out_blur_win = R"(D:\Documents\Cours\M1\S2\ProgGraphique\Projet\github\ProjetCUDA\Code_bon\kernel\block32-32\out_kernel_blur.jpg)";
-//    auto path_out_sharpen_win = R"(D:\Documents\Cours\M1\S2\ProgGraphique\Projet\github\ProjetCUDA\Code_bon\kernel\block32-32\out_kernel_sharpen.jpg)";
-//    auto path_out_edge_detect_win = R"(D:\Documents\Cours\M1\S2\ProgGraphique\Projet\github\ProjetCUDA\Code_bon\kernel\block32-32\out_kernel_edge_detectin.jpg)";
     cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
-//    cv::Mat m_in = cv::imread(path_in_win, cv::IMREAD_UNCHANGED);
     unsigned char* rgb = m_in.data;
     int rows = m_in.rows;
     int cols = m_in.cols;
@@ -203,12 +194,6 @@ int main()
     cv::imwrite("out_kernel_blur.jpg", m_out_blur);
     cv::imwrite("out_kernel_sharpen.jpg", m_out_sharpen);
     cv::imwrite("out_kernel_edge_detect.jpg", m_out_edge_detect);
-//    cv::imwrite(filename_out_blur, m_out_blur);
-//    cv::imwrite(filename_out_sharpen, m_out_sharpen);
-//    cv::imwrite(filename_out_edge_detect, m_out_edge_detect);
-//    cv::imwrite(path_out_blur_win, m_out_blur);
-//    cv::imwrite(path_out_sharpen_win, m_out_sharpen);
-//    cv::imwrite(path_out_edge_detect_win, m_out_edge_detect);
 
     // Nettoyage memoire
     cudaFree(rgb_in);
