@@ -7,7 +7,7 @@ find_package(OpenCV REQUIRED)
 set(CMAKE_CUDA_STANDARD 14)
 
 add_executable(ProjetCUDA
-        Code_bon/stream/block32-32/main_stream.cu
+        Code_bon/stream/main_stream.cu
 
 #        Code_final/kernel/main_kernel.cu
 #        Code_final/sequentiel/main_seq.cu
