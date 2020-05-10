@@ -100,7 +100,6 @@ int main()
 
     unsigned char* rgb_tmp_blur_edge_detect;
     unsigned char* rgb_tmp_edge_detect_blur;
-
     unsigned char* rgb_out_blur_edge_detect;
     unsigned char* rgb_out_edge_detect_blur;
 

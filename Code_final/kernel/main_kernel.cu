@@ -310,13 +310,12 @@ int main()
     // Init donnes kernel
     err = cudaMalloc(&rgb_in, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
     err = cudaMalloc(&rgb_out_blur, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMalloc(&rgb_out_sharpen, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMalloc(&rgb_out_edge_detect, taille_rgb);
-    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    err = cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     err = cudaMalloc(&rgb_tmp_blur_edge_detect, taille_rgb);
@@ -326,6 +325,9 @@ int main()
     err = cudaMalloc(&rgb_out_blur_edge_detect, taille_rgb);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
     err = cudaMalloc(&rgb_out_edge_detect_blur, taille_rgb);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    err = cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
     /////////////////////////////////////////////////////////////////
@@ -425,6 +427,7 @@ int main()
 
     // Nettoyage memoire
     cudaFree(rgb_in);
+
     cudaFree(rgb_out_blur);
     cudaFree(rgb_out_sharpen);
     cudaFree(rgb_out_edge_detect);

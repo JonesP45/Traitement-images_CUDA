@@ -15,7 +15,9 @@ add_executable(ProjetCUDA
 #        Code_test/shared/block32-32/main_shared.cu
 #        Code_test/shared/block17-20-3/main_shared3c.cu
 #        Code_test/kernel/block17-20-3/main3c.cu
+
         Code_final/kernel/main_kernel.cu
+#        Code_final/sequentiel/main_seq.cu
         )
 
 set_target_properties(
