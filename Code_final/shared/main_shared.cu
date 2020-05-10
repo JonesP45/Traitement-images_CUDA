@@ -171,7 +171,7 @@ __global__ void blur_edge_detect2D(const unsigned char * rgb_in, unsigned char *
 
     extern __shared__ unsigned char sh_blur_edge_detect2D[];
 
-    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1 && row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+    if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
@@ -191,7 +191,8 @@ __global__ void blur_edge_detect2D(const unsigned char * rgb_in, unsigned char *
 
     auto ww = blockDim.x;
 
-    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1)) {
+    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char h = sh_blur_edge_detect2D[3 * ((lrow - 1) * ww + lcol) + rgb];
             unsigned char g = sh_blur_edge_detect2D[3 * (lrow * ww + lcol - 1) + rgb];
