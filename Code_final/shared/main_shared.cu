@@ -172,6 +172,8 @@ __global__ void blur_edge_detect2D(const unsigned char * rgb_in, unsigned char *
     extern __shared__ unsigned char sh_blur_edge_detect2D[];
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+//    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+//        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
@@ -219,6 +221,8 @@ __global__ void edge_detect_blur2D(const unsigned char * rgb_in, unsigned char *
     extern __shared__ unsigned char sh_edge_detect_blur2D[];
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+//    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+//        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         for (int rgb = 0; rgb < 3; ++rgb) {
             unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
             unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
@@ -268,6 +272,8 @@ __global__ void blur_edge_detect3D(const unsigned char * rgb_in, unsigned char *
     extern __shared__ unsigned char sh_blur_edge_detect3D[];
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+//    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+//        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         unsigned char hg = rgb_in[3 * ((row - 1) * cols + col - 1) + rgb];
         unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
         unsigned char hd = rgb_in[3 * ((row - 1) * cols + col + 1) + rgb];
@@ -312,6 +318,8 @@ __global__ void edge_detect_blur3D(const unsigned char * rgb_in, unsigned char *
     extern __shared__ unsigned char sh_edge_detect_blur3D[];
 
     if (row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
+//    if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
+//        row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
         unsigned char h = rgb_in[3 * ((row - 1) * cols + col) + rgb];
         unsigned char g = rgb_in[3 * (row * cols + col - 1) + rgb];
         unsigned char c = rgb_in[3 * (row * cols + col) + rgb];
