@@ -4,11 +4,17 @@ LDLIBS=`pkg-config --libs opencv`
 FILE=in
 EXTENTION=jpg
 
-all: main_seq main_kernel main_shared main_stream
+SEQ=sequentiel/
 
-main_seq: sequentiel/main_seq.cu
-	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
-	./sequentiel/main_seq $(FILE) $(EXTENTION)
+#./sequentiel/main_seq $(FILE) $(EXTENTION)
+#@(cd $(SEQ) && $(MAKE))
+#all: main_seq main_kernel main_shared main_stream
+all: main_seq
+
+#main_seq: sequentiel/main_seq.cu
+#	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
+main_seq:
+	cd $(SEQ) && $(MAKE)
 
 main_kernel: kernel/main_kernel.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
