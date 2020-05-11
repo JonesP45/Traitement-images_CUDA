@@ -595,12 +595,12 @@ int main(int argc, char *argv[])
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_32-32_blur.jpg", m_out_blur);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_32-32_sharpen.jpg", m_out_sharpen);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_32-32_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite(out + std::string("_shared_block_32-32_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_shared_block_32-32_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_shared_block_32-32_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
 
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_32-32_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_32-32_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite(out + std::string("_shared_block_32-32_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_shared_block_32-32_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     ///////////////////// block 17 20 3 /////////////////////////////
@@ -641,12 +641,12 @@ int main(int argc, char *argv[])
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_17-20-3_blur.jpg", m_out_blur);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_17-20-3_sharpen.jpg", m_out_sharpen);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite(out + std::string("_shared_block_17-20-3_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_shared_block_17-20-3_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_shared_block_17-20-3_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
 
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite(out + std::string("_seq_blur.") + std::string(argv[2])"out_stream_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite(out + std::string("_shared_block_17-20-3_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_shared_block_17-20-3_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
