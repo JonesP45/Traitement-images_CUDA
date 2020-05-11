@@ -237,7 +237,6 @@ __global__ void edge_detect_blur2D(const unsigned char * rgb_in, unsigned char *
     __syncthreads();
 
     auto ww = blockDim.x;
-    printf("%\n", ww);
 
     if (lcol > 0 && lcol < (blockDim.x - 1) && lrow > 0 && lrow < (blockDim.y - 1) &&
         row >= 1 && row < rows - 1 && col >= 1 && col < cols - 1) {
@@ -576,12 +575,12 @@ int main()
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite("out_kernel_block_32-32_blur.jpg", m_out_blur);
-    cv::imwrite("out_kernel_block_32-32_sharpen.jpg", m_out_sharpen);
-    cv::imwrite("out_kernel_block_32-32_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite("out_stream_block_32-32_blur.jpg", m_out_blur);
+    cv::imwrite("out_stream_block_32-32_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_stream_block_32-32_edge_detect.jpg", m_out_edge_detect);
 
-    cv::imwrite("out_kernel_block_32-32_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite("out_kernel_block_32-32_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite("out_stream_block_32-32_blur_edge_detect.jpg", m_out_blur_edge_detect);
+    cv::imwrite("out_stream_block_32-32_edge_detect_blur.jpg", m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     ///////////////////// block 17 20 3 /////////////////////////////
@@ -622,12 +621,12 @@ int main()
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite("out_kernel_block_17-20-3_blur.jpg", m_out_blur);
-    cv::imwrite("out_kernel_block_17-20-3_sharpen.jpg", m_out_sharpen);
-    cv::imwrite("out_kernel_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite("out_stream_block_17-20-3_blur.jpg", m_out_blur);
+    cv::imwrite("out_stream_block_17-20-3_sharpen.jpg", m_out_sharpen);
+    cv::imwrite("out_stream_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
 
-    cv::imwrite("out_kernel_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite("out_kernel_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite("out_stream_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
+    cv::imwrite("out_stream_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
@@ -645,73 +644,3 @@ int main()
 
     return 0;
 }
-
-/*
-int main()
-{
-    // Declarations
-    cudaError_t err;
-
-    cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
-    unsigned char* rgb = m_in.data;
-    int rows = m_in.rows;
-    int cols = m_in.cols;
-
-    size_t taille_rgb = 3 * rows * cols;
-    std::vector<unsigned char> g_blur(taille_rgb);
-    cv::Mat m_out_blur(rows, cols, CV_8UC3, g_blur.data());
-
-    unsigned char* rgb_in;
-
-    unsigned char* rgb_out;
-
-    // Init donnes kernel
-    err = cudaMalloc(&rgb_in, taille_rgb);
-    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-
-    err = cudaMalloc(&rgb_out, taille_rgb);
-    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-
-    err = cudaMemcpy(rgb_in, rgb, taille_rgb, cudaMemcpyHostToDevice);
-    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-
-    dim3 block(32, 32); //nb de thread, max 1024
-    dim3 grid(((cols - 1) / (block.x-2) + 1), (rows - 1) / (block.y-2) + 1);
-
-    // Debut de chrono
-    cudaEvent_t start;
-    cudaEvent_t stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-
-    // Appel kernel
-    // blur <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    // sharpen <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    // edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    blur_and_edge_detect <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-    // edge_detect_and_blur <<< grid, block, block.x*block.y*3 >>> (rgb_in, rgb_out, rows, cols);
-
-    // Fin de chrono
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
-    float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << elapsedTime << std::endl;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
-
-    // Recup donnees kernel
-    err = cudaMemcpy(g_blur.data(), rgb_out, 3 * rows * cols, cudaMemcpyDeviceToHost);
-    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-
-    cv::imwrite("out.jpg", m_out_blur);
-
-    // Nettoyage memoire
-    cudaFree(rgb_in);
-
-    cudaFree(rgb_out);
-
-    return 0;
-}*/
