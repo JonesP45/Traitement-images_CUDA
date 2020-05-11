@@ -1,5 +1,6 @@
 CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
+
 FILE=in
 EXTENTION=jpg
 
