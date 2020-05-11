@@ -11,4 +11,4 @@ main_seq: main_seq.cu
 	./main_seq $(FILE) $(EXTENTION)
 
 clean:
-	rm main_seq
+	rm -f main_seq

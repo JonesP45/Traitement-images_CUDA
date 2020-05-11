@@ -9,4 +9,4 @@ main_stream: main_stream.cu
 	./main_stream $(FILE) $(EXTENTION)
 
 clean:
-	rm main_stream
+	rm -f main_stream

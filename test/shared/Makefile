@@ -9,4 +9,4 @@ main_shared: main_shared.cu
 	./main_shared $(FILE) $(EXTENTION)
 
 clean:
-	rm main_shared
+	rm -f main_shared

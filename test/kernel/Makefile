@@ -9,4 +9,4 @@ main_kernel: main_kernel.cu
 	./main_kernel $(FILE) $(EXTENTION)
 
 clean:
-	rm main_kernel
+	rm -f main_kernel
