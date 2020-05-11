@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <iostream>
 
 void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
@@ -33,7 +34,7 @@ void sharpen(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, int ro
                 unsigned char d = rgb_in[3 * (row * cols + col + 1) + rgb];
                 unsigned char b = rgb_in[3 * ((row + 1) * cols + col) + rgb];
                 int somme = (-3 * (h + g + d + b) + 21 * c) / 9;
-                
+
                 if (somme > 255) somme = 255;
                 if (somme < 0) somme = 0;
 
@@ -65,8 +66,7 @@ void edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_edge_detect
 }
 
 
-void main_blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols)
-{
+void main_blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     //Debut de chrono
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
@@ -75,8 +75,7 @@ void main_blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int row
 
     //Fin de chrono
     end = std::chrono::system_clock::now();
-    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
-            (end-start).count();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << "blur_seq: " << elapsedTime << std::endl;
 }
 
@@ -90,8 +89,7 @@ void main_sharpen(const unsigned char* rgb_in, unsigned char* rgb_out_sharpen, i
 
     //Fin de chrono
     end = std::chrono::system_clock::now();
-    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
-            (end-start).count();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << "sharpen_seq: " << elapsedTime << std::endl;
 }
 
@@ -105,8 +103,7 @@ void main_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_out_edge_d
 
     //Fin de chrono
     end = std::chrono::system_clock::now();
-    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
-            (end-start).count();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << "edge_detect_seq: " << elapsedTime << std::endl;
 }
 
@@ -123,8 +120,7 @@ void main_blur_edge_detect(const unsigned char* rgb_in, unsigned char* rgb_tmp_b
 
     //Fin de chrono
     end = std::chrono::system_clock::now();
-    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
-            (end-start).count();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << "blur_edge_detect_seq: " << elapsedTime << std::endl;
 }
 
@@ -140,8 +136,7 @@ void main_edge_detect_blur(const unsigned char* rgb_in, unsigned char* rgb_tmp_e
 
     //Fin de chrono
     end = std::chrono::system_clock::now();
-    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>
-            (end-start).count();
+    int elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << "edge_detect_blur_seq: " << elapsedTime << std::endl;
 }
 
