@@ -1,7 +1,7 @@
 CXX=nvcc
 LDLIBS=`pkg-config --libs opencv`
 
-MAKE=make
+#MAKE=make
 
 FILE=in
 EXTENTION=jpg
@@ -16,7 +16,9 @@ all: main_seq
 #main_seq: sequentiel/main_seq.cu
 #	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 main_seq:
-	$(MAKE) -C $(SEQ) all
+	cd $(SEQ) && $(MAKE) clean && $(MAKE)
+
+#$(MAKE) -C $(SEQ) all
 
 main_kernel: kernel/main_kernel.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
