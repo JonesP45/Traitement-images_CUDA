@@ -17,6 +17,7 @@ add_executable(ProjetCUDA
         Code_final/shared/main_shared.cu
 #        Code_final/stream/main_stream.cu
 #        test/mainshared3c.cu
+#        test/sobel-fusion2.cu
         )
 
 set_target_properties(
