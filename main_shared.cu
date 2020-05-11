@@ -185,10 +185,6 @@ __global__ void blur_edge_detect2D(const unsigned char * rgb_in, unsigned char *
 
             sh_blur_edge_detect2D[3 * (lrow * blockDim.x + lcol) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
         }
-    } else {
-        for (int rgb = 0; rgb < 3; ++rgb) {
-            sh_blur_edge_detect2D[3 * (lrow * blockDim.x + lcol) + rgb] = 0;
-        }
     }
 
     __syncthreads();
@@ -235,10 +231,6 @@ __global__ void edge_detect_blur2D(const unsigned char * rgb_in, unsigned char *
             if (somme < 0) somme = 0;
 
             sh_edge_detect_blur2D[3 * (lrow * blockDim.x + lcol) + rgb] = somme;
-        }
-    } else {
-        for (int rgb = 0; rgb < 3; ++rgb) {
-            sh_edge_detect_blur2D[3 * (lrow * blockDim.x + lcol) + rgb] = 0;
         }
     }
 
@@ -287,8 +279,6 @@ __global__ void blur_edge_detect3D(const unsigned char * rgb_in, unsigned char *
         unsigned char bd = rgb_in[3 * ((row + 1) * cols + col + 1) + rgb];
 
         sh_blur_edge_detect3D[3 * (lrow * blockDim.x + lcol) + rgb] = (hg + h + hd + g + c + d + bg + b + bd) / 9;
-    } else {
-        sh_blur_edge_detect3D[3 * (lrow * blockDim.x + lcol) + rgb] = 0;
     }
 
     __syncthreads();
