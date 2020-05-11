@@ -16,8 +16,7 @@ all: main_seq
 #main_seq: sequentiel/main_seq.cu
 #	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
 main_seq:
-	cd $(SEQ)
-	$(MAKE)
+	$(MAKE) -C $(SEQ) all
 
 main_kernel: kernel/main_kernel.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
