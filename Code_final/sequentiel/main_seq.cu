@@ -1,6 +1,8 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <iostream>
+#include <chrono>
+#include <ctime>
 
 void blur(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     for (std::size_t row = 1; row < rows - 1; ++row) {
