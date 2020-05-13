@@ -8,8 +8,9 @@ SEQ=sequentiel/
 KERNEL=kernel/
 SHARED=shared/
 STREAM=stream/
+SHARED_STREAM=shared_stream/
 
-all: main_seq main_kernel main_shared main_stream
+all: main_seq main_kernel main_shared main_stream main_shared_stream
 
 main_seq:
 	cd $(SEQ) && $(MAKE) clean && $(MAKE)
@@ -22,4 +23,8 @@ main_shared:
 
 main_stream:
 	cd $(STREAM) && $(MAKE) clean && $(MAKE)
+
+main_shared_stream:
+	cd $(SHARED_STREAM) && $(MAKE) clean && $(MAKE)
+
 

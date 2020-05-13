@@ -4,11 +4,9 @@ LDLIBS=`pkg-config --libs opencv`
 FILE=in
 EXTENTION=jpg
 
-all: main_seq
-
-main_seq: main_seq.cu
+main_shared_stream: main_shared_stream.cu
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDLIBS)
-	./main_seq $(FILE) $(EXTENTION)
+	./main_shared_stream $(FILE) $(EXTENTION)
 
 clean:
-	rm -f main_seq
+	rm -f main_shared_stream
