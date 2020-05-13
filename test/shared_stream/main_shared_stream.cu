@@ -365,7 +365,7 @@ __global__ void edge_detect_blur3D(const unsigned char * rgb_in, unsigned char *
 }
 
 
-void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in,
+void main_blur(const dim3 grid, const dim3 block, const unsigned int shared, const cudaStream_t* streams, const unsigned char* rgb_in,
                unsigned char* rgb_out_blur, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -379,14 +379,14 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, c
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            blur2D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            blur2D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_out_blur + decalage, row_stream, cols);
         }
     } else {
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            blur3D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage, rgb_out_blur + decalage,
+            blur3D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage, rgb_out_blur + decalage,
                     row_stream, cols);
         }
     }
@@ -402,7 +402,7 @@ void main_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, c
     cudaEventDestroy(stop);
 }
 
-void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in,
+void main_sharpen(const dim3 grid, const dim3 block, const unsigned int shared, const cudaStream_t* streams, const unsigned char* rgb_in,
                   unsigned char* rgb_out_sharpen, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -416,14 +416,14 @@ void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            sharpen2D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            sharpen2D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_out_sharpen + decalage, row_stream, cols);
         }
     } else {
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            sharpen3D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage, rgb_out_sharpen + decalage,
+            sharpen3D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage, rgb_out_sharpen + decalage,
                     row_stream, cols);
         }
     }
@@ -439,7 +439,7 @@ void main_sharpen(const dim3 grid, const dim3 block, const cudaStream_t* streams
     cudaEventDestroy(stop);
 }
 
-void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in,
+void main_edge_detect(const dim3 grid, const dim3 block, const unsigned int shared, const cudaStream_t* streams, const unsigned char* rgb_in,
                       unsigned char* rgb_out_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -453,14 +453,14 @@ void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* str
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            edge_detect2D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            edge_detect2D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_out_edge_detect + decalage, row_stream, cols);
         }
     } else {
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            edge_detect3D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            edge_detect3D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_out_edge_detect + decalage, row_stream, cols);
         }
     }
@@ -477,7 +477,7 @@ void main_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* str
 }
 
 
-void main_blur_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in,
+void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned int shared, const cudaStream_t* streams, const unsigned char* rgb_in,
         unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -491,18 +491,18 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            blur2D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            blur2D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_tmp_blur_edge_detect + decalage, row_stream, cols);
-            edge_detect2D<<< grid, block, 0, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
+            edge_detect2D<<< grid, block, shared, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
                     rgb_out_blur_edge_detect + decalage, row_stream, cols);
         }
     } else {
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            blur3D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            blur3D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                     rgb_tmp_blur_edge_detect + decalage, row_stream, cols);
-            edge_detect3D<<< grid, block, 0, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
+            edge_detect3D<<< grid, block, shared, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
                     rgb_out_blur_edge_detect + decalage, row_stream, cols);
         }
     }
@@ -519,7 +519,7 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const cudaStream_t
 }
 
 
-void main_edge_detect_blur(const dim3 grid, const dim3 block, const cudaStream_t* streams, const unsigned char* rgb_in,
+void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned int shared, const cudaStream_t* streams, const unsigned char* rgb_in,
                            unsigned char* rgb_tmp_blur_edge_detect, unsigned char* rgb_out_blur_edge_detect, int rows, int cols) {
     // Debut de chrono
     cudaEvent_t start;
@@ -533,18 +533,18 @@ void main_edge_detect_blur(const dim3 grid, const dim3 block, const cudaStream_t
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            edge_detect2D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            edge_detect2D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                                                      rgb_tmp_blur_edge_detect + decalage, row_stream, cols);
-            blur2D<<< grid, block, 0, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
+            blur2D<<< grid, block, shared, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
                                                             rgb_out_blur_edge_detect + decalage, row_stream, cols);
         }
     } else {
         for (std::size_t i = 0; i < taille_stream; ++i) {
             int row_stream = (int) (rows / taille_stream) + ((i == 0 || i == taille_stream - 1) ? 1 : 2);
             std::size_t decalage = i * taille_rgb / taille_stream - (i == 0 ? 0 : one_line_rgb);
-            edge_detect3D<<< grid, block, 0, streams[i] >>>(rgb_in + decalage,
+            edge_detect3D<<< grid, block, shared, streams[i] >>>(rgb_in + decalage,
                                                      rgb_tmp_blur_edge_detect + decalage, row_stream, cols);
-            blur3D<<< grid, block, 0, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
+            blur3D<<< grid, block, shared, streams[i] >>>(rgb_tmp_blur_edge_detect + decalage,
                                                             rgb_out_blur_edge_detect + decalage, row_stream, cols);
         }
     }
@@ -646,22 +646,23 @@ int main(int argc, char *argv[])
 
     dim3 block_32_32(32, 32 / taille_stream); //nb de thread par bloc, max 1024
     dim3 grid_32_32(((cols - 1) / block_32_32.x + 1), (((rows + (taille_stream - 1) * 2) / taille_stream - 1) / block_32_32.y + 1)); // nb de block
+    unsigned int shared = 3 * block_32_32.x * block_32_32.y;
 
     // Execution
-    main_blur(grid_32_32, block_32_32, streams, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid_32_32, block_32_32, shared, streams, rgb_in, rgb_out_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_sharpen(grid_32_32, block_32_32, streams, rgb_in, rgb_out_sharpen, rows, cols);
+    main_sharpen(grid_32_32, block_32_32, shared, streams, rgb_in, rgb_out_sharpen, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect(grid_32_32, block_32_32, streams, rgb_in, rgb_out_edge_detect, rows, cols);
+    main_edge_detect(grid_32_32, block_32_32, shared, streams, rgb_in, rgb_out_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    main_blur_edge_detect(grid_32_32, block_32_32, streams, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
+    main_blur_edge_detect(grid_32_32, block_32_32, shared, streams, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect_blur(grid_32_32, block_32_32, streams, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
+    main_edge_detect_blur(grid_32_32, block_32_32, shared, streams, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
@@ -706,22 +707,23 @@ int main(int argc, char *argv[])
     dim3 block_17_20_3(17, 20 / taille_stream, 3); //nb de thread par bloc, max 1024
     dim3 grid_17_20_3(((cols - 1) / block_17_20_3.x + 1),
             (((rows + (taille_stream - 1) * 2) / taille_stream - 1) / block_17_20_3.y + 1)); // nb de block
+    shared = 3 * block_17_20_3.x * block_17_20_3.y;
 
     // Execution
-    main_blur(grid_17_20_3, block_17_20_3, streams, rgb_in, rgb_out_blur, rows, cols);
+    main_blur(grid_17_20_3, block_17_20_3, shared, streams, rgb_in, rgb_out_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_sharpen(grid_17_20_3, block_17_20_3, streams, rgb_in, rgb_out_sharpen, rows, cols);
+    main_sharpen(grid_17_20_3, block_17_20_3, shared, streams, rgb_in, rgb_out_sharpen, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect(grid_17_20_3, block_17_20_3, streams, rgb_in, rgb_out_edge_detect, rows, cols);
+    main_edge_detect(grid_17_20_3, block_17_20_3, shared, streams, rgb_in, rgb_out_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    main_blur_edge_detect(grid_17_20_3, block_17_20_3, streams, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
+    main_blur_edge_detect(grid_17_20_3, block_17_20_3, shared, streams, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
-    main_edge_detect_blur(grid_17_20_3, block_17_20_3, streams, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
+    main_edge_detect_blur(grid_17_20_3, block_17_20_3, shared, streams, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
     err = cudaGetLastError();
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
