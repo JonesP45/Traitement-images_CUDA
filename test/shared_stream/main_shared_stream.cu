@@ -397,7 +397,7 @@ void main_blur(const dim3 grid, const dim3 block, const unsigned int shared, con
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
+    std::cout << "blur_shared_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -434,7 +434,7 @@ void main_sharpen(const dim3 grid, const dim3 block, const unsigned int shared, 
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "sharpen_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
+    std::cout << "sharpen_shared_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -471,7 +471,7 @@ void main_edge_detect(const dim3 grid, const dim3 block, const unsigned int shar
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "edge_detect_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
+    std::cout << "edge_detect_shared_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -513,7 +513,7 @@ void main_blur_edge_detect(const dim3 grid, const dim3 block, const unsigned int
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "blur_edge_detect_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
+    std::cout << "blur_edge_detect_shared_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
@@ -555,7 +555,7 @@ void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned int
     std::cout << cudaGetErrorString(cudaGetLastError()) << std::endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
-    std::cout << "edge_detect_blur_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
+    std::cout << "edge_detect_blur_shared_stream_" << block.x << "-" << block.y << "-" << block.z << ": " << elapsedTime << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 }
