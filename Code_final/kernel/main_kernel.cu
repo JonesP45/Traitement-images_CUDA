@@ -1,5 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <iostream>
+#include <string>
 
 __global__ void blur2D(const unsigned char* rgb_in, unsigned char* rgb_out_blur, int rows, int cols) {
     auto col = blockIdx.x * blockDim.x + threadIdx.x; //pos de la couleur sur x
@@ -280,10 +282,16 @@ void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned cha
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
     // Declarations
     cudaError_t err;
+
+    std::string filename = std::string(argv[1]) + std::string(".") + std::string(argv[2]);
+    std::string out(argv[1]);
+    if (out == "in") {
+        out = std::string("out");
+    }
 
     cv::Mat m_in = cv::imread("in.jpg", cv::IMREAD_UNCHANGED);
     unsigned char* rgb = m_in.data;
@@ -379,12 +387,12 @@ int main()
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite("out_kernel_block_32-32_blur.jpg", m_out_blur);
-    cv::imwrite("out_kernel_block_32-32_sharpen.jpg", m_out_sharpen);
-    cv::imwrite("out_kernel_block_32-32_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_32-32_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_kernel_block_32-32_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_kernel_block_32-32_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
 
-    cv::imwrite("out_kernel_block_32-32_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite("out_kernel_block_32-32_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite(out + std::string("_kernel_block_32-32_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_32-32_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     ///////////////////// block 17 20 3 /////////////////////////////
@@ -424,12 +432,12 @@ int main()
     err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
     if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
 
-    cv::imwrite("out_kernel_block_17-20-3_blur.jpg", m_out_blur);
-    cv::imwrite("out_kernel_block_17-20-3_sharpen.jpg", m_out_sharpen);
-    cv::imwrite("out_kernel_block_17-20-3_edge_detect.jpg", m_out_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
 
-    cv::imwrite("out_kernel_block_17-20-3_blur_edge_detect.jpg", m_out_blur_edge_detect);
-    cv::imwrite("out_kernel_block_17-20-3_edge_detect_blur.jpg", m_out_edge_detect_blur);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
