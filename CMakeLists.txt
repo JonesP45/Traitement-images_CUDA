@@ -11,11 +11,12 @@ add_executable(ProjetCUDA
 #        Code_final/kernel/main_kernel.cu
 #        Code_final/shared/main_shared.cu
 #        Code_final/stream/main_stream.cu
+#        Code_final/shared_stream/main_shared_stream.cu
 #        test/sequentiel/main_seq.cu
-#        test/kernel/main_kernel.cu
+        test/kernel/main_kernel.cu
 #        test/shared/main_shared.cu
 #        test/stream/main_stream.cu
-        test/shared_stream/main_shared_stream.cu
+#        test/shared_stream/main_shared_stream.cu
         )
 
 set_target_properties(

@@ -282,6 +282,59 @@ void main_edge_detect_blur(const dim3 grid, const dim3 block, const unsigned cha
 }
 
 
+void main_block(const int x, const int y, const int z, const unsigned char* rgb_in, unsigned char* rgb_out_blur,
+                unsigned char* rgb_out_sharpen, unsigned char* rgb_out_edge_detect, unsigned char* rgb_tmp_blur_edge_detect,
+                unsigned char* rgb_tmp_edge_detect_blur, unsigned char* rgb_out_blur_edge_detect,
+                unsigned char* rgb_out_edge_detect_blur, int rows, int cols) {
+    cudaError_t err;
+
+    dim3 block(x, y, z); //nb de thread, max 1024
+    dim3 grid(((cols - 1) / block.x + 1), (rows - 1) / block.y + 1);
+
+    // Execution
+    main_blur(grid, block, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_sharpen(grid, block, rgb_in, rgb_out_sharpen, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_edge_detect(grid, block, rgb_in, rgb_out_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    main_blur_edge_detect(grid, block, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_edge_detect_blur(grid, block, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+
+    // Recup donnees kernel
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    err = cudaMemcpy(g_blur_edge_detect.data(), rgb_out_blur_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    cv::imwrite(out + std::string("_kernel_block_") + std::string(reinterpret_cast<const char *const>(x)) + std::string("_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_kernel_block_32-32_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_kernel_block_32-32_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
+
+    cv::imwrite(out + std::string("_kernel_block_32-32_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_32-32_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
+
+}
+
+
+
+
 int main(int argc, char *argv[])
 {
     // Declarations
@@ -351,6 +404,8 @@ int main(int argc, char *argv[])
     /////////////////////////////////////////////////////////////////
     ///////////////////// block 32 32 ///////////////////////////////
     /////////////////////////////////////////////////////////////////
+    main_block(32, 32, 1, rgb_in, rgb_out_blur, rgb_out_sharpen, rgb_out_edge_detect, rgb_tmp_blur_edge_detect,
+            rgb_tmp_edge_detect_blur, rgb_out_blur_edge_detect, rgb_out_edge_detect_blur, rows, cols);
 
     dim3 block_32_32(32, 32); //nb de thread, max 1024
     dim3 grid_32_32(((cols - 1) / block_32_32.x + 1), (rows - 1) / block_32_32.y + 1);
@@ -440,11 +495,57 @@ int main(int argc, char *argv[])
     cv::imwrite(out + std::string("_kernel_block_17-20-3_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
 
     /////////////////////////////////////////////////////////////////
+    ///////////////////// block 17 20 3 /////////////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    dim3 block_16_64(17, 20, 3); //nb de thread, max 1024
+    dim3 grid_16_64(((cols - 1) / block_16_64.x + 1), (rows - 1) / block_16_64.y + 1);
+
+    // Execution
+    main_blur(grid_16_64, block_16_64, rgb_in, rgb_out_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_sharpen(grid_16_64, block_16_64, rgb_in, rgb_out_sharpen, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_edge_detect(grid_16_64, block_16_64, rgb_in, rgb_out_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    main_blur_edge_detect(grid_16_64, block_16_64, rgb_in, rgb_tmp_blur_edge_detect, rgb_out_blur_edge_detect, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    main_edge_detect_blur(grid_16_64, block_16_64, rgb_in, rgb_tmp_edge_detect_blur, rgb_out_edge_detect_blur, rows, cols);
+    err = cudaGetLastError();
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    // Recup donnees kernel
+    err = cudaMemcpy(g_blur.data(), rgb_out_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_sharpen.data(), rgb_out_sharpen, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect.data(), rgb_out_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    err = cudaMemcpy(g_blur_edge_detect.data(), rgb_out_blur_edge_detect, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+    err = cudaMemcpy(g_edge_detect_blur.data(), rgb_out_edge_detect_blur, taille_rgb, cudaMemcpyDeviceToHost);
+    if ( err != cudaSuccess ) { std::cerr << "Error" << std::endl; }
+
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_blur.") + std::string(argv[2]), m_out_blur);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_sharpen.") + std::string(argv[2]), m_out_sharpen);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_edge_detect.") + std::string(argv[2]), m_out_edge_detect);
+
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_blur_edge_detect.") + std::string(argv[2]), m_out_blur_edge_detect);
+    cv::imwrite(out + std::string("_kernel_block_17-20-3_edge_detect_blur.") + std::string(argv[2]), m_out_edge_detect_blur);
+
+    /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////
 
     // Nettoyage memoire
     cudaFree(rgb_in);
+    cudaMalloc(&rgb_in, taille_rgb);
 
     cudaFree(rgb_out_blur);
     cudaFree(rgb_out_sharpen);
