@@ -776,5 +776,10 @@ int main(int argc, char *argv[])
     cudaFree(rgb_out_sharpen);
     cudaFree(rgb_out_edge_detect);
 
+    cudaFree(rgb_tmp_blur_edge_detect);
+    cudaFree(rgb_tmp_edge_detect_blur);
+    cudaFree(rgb_out_blur_edge_detect);
+    cudaFree(rgb_out_edge_detect_blur);
+
     return 0;
 }
